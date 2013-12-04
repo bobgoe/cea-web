@@ -43,13 +43,7 @@ define([], function() {
         controller: 'ResultsController',
         templateUrl: 'results.html',
         requires: ['scale-ranges', 'partial-value-functions'],
-        resets: []}/*,
-      { id: "test",
-        title: "Test",
-        controller: "TestController",
-        templateUrl: "test.html",
-        requires: [],
-        resets: [] }*/
+        resets: []}
     ]};
 
   var defaultView = "overview";

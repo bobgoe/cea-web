@@ -14,7 +14,6 @@
     <link rel="stylesheet" type="text/css" href="app/css/main.css">
 
     <script src="app/js/lib/modernizr.foundation.js"></script>
-
     <script src="app/js/lib/require.js" data-main="app/js/main.js"></script>
 
   </head>
@@ -27,7 +26,21 @@
       </div>
     </div>
 
+	<div class="container">
+        <h4>
+            Temp overlay for CEA
+        </h4>
+        <div class="row">
+            <ul class="nav nav-pills">
+                <li><a href="#/choose-problem">MCDA-Web</a></li>
+                <li><a href="#/test">CEA</a></li>
+            </ul>
+
+        </div>
+
     <div ui-view></div>
+    
+    </div>
 
     <script>
      window.config = { examplesRepository: "/examples/" };

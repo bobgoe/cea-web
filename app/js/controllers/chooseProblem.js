@@ -5,7 +5,7 @@ define(['angular', 'underscore'], function(angular, _) {
     $scope.list = [];
     $scope.model = {};
     $scope.local = {};
-
+    
     $scope.setProblem = function(choice) {
       if (choice === 'local') {
         if (!_.isEmpty($scope.local.contents)) {
@@ -19,21 +19,6 @@ define(['angular', 'underscore'], function(angular, _) {
         workspace.redirectToDefaultView();
       });
     };
-    
-    // New function for creating workspace of CEA problem
-    /*$scope.setCEAProblem = function(choice){
-    	if (choice === 'local') {
-            if (!_.isEmpty($scope.local.contents)) {
-              DecisionProblem.populateWithData(angular.fromJson($scope.local.contents));
-            }
-          } else {
-            DecisionProblem.populateWithUrl(choice);
-          }
-          DecisionProblem.problem.then(function(problem) {
-            var test = Workspaces.create(problem);
-            test.redirectToDefaultView();
-          });
-        };*/
 
     $scope.$watch('local.contents', function(newVal) {
       if(!_.isEmpty(newVal)) {

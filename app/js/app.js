@@ -109,12 +109,22 @@ define(
         });
       });
 
-      // Default route
-      $stateProvider.state('choose-problem',
-                           { url: '/choose-problem',
-                             templateUrl: baseTemplatePath + 'chooseProblem.html',
-                             controller: "ChooseProblemController" });
+      // Default route adjusted
+      $stateProvider
+		  .state('choose-problem', { 
+			  url: '/choose-problem',
+              templateUrl: baseTemplatePath + 'chooseProblem.html',
+              controller: "ChooseProblemController" 
+          })
+	      .state('test', {
+	          url: '/test',
+	          templateUrl: baseTemplatePath + 'test.html',
+	          controller: "TestController"
+	      })
+	  ;    
+      
       $urlRouterProvider.otherwise('/choose-problem');
+      
     }]);
 
     return app;

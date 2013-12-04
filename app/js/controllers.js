@@ -10,6 +10,6 @@ define(function(require) {
           .controller('OrdinalSwingController', require('controllers/ordinalSwing'))
           .controller('IntervalSwingController', require('controllers/intervalSwing'))
           .controller('ExactSwingController', require('controllers/exactSwing'))
-          .controller('ResultsController', require('controllers/results'));
-    	 // .controller('TestController', require('controllers/test'));
+          .controller('ResultsController', require('controllers/results'))
+          .controller('TestController', require('controllers/test'));
 });
