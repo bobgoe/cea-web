@@ -1,0 +1,28 @@
+<div class="row">
+    
+   <div class="panel">
+      <strong>Disclaimer:</strong> CEA test, only select CEA test from options.
+    </div>
+
+	<button class="small success" ng-click="patavi()">Submit patavi</button>
+	
+	<div>
+		{{test}}
+	</div>
+
+	<button class="small secondary button" ng-click="submit(method, input)">Submit new task</button>
+	
+	<div class="columns" ng-show="status">
+       <h2 class="subheader">Status</h2>
+       <div class="panel"><pre>{{status | json}}</pre></div>
+     </div>
+     <div class="columns" ng-show="results">
+       <h2 class="subheader">Results</h2>
+       <div class="panel"><pre>{{results | json}}</pre></div>
+     </div>
+     <div class="columns" ng-show="error">
+       <h2 class="subheader">Error</h2>
+       <div class="panel"><pre>{{error | json}}</pre></div>
+     </div>
+ 
+</div>

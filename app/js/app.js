@@ -116,10 +116,10 @@ define(
               templateUrl: baseTemplatePath + 'chooseProblem.html',
               controller: "ChooseProblemController" 
           })
-	      .state('test', {
-	          url: '/test',
-	          templateUrl: baseTemplatePath + 'test.html',
-	          controller: "TestController"
+	      .state('CEAstart', {
+	          url: '/CEAstart',
+	          templateUrl: baseTemplatePath + 'CEAstart.html',
+	          controller: "CEAstartController"
 	      })
 	  ;    
       

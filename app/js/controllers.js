@@ -11,5 +11,5 @@ define(function(require) {
           .controller('IntervalSwingController', require('controllers/intervalSwing'))
           .controller('ExactSwingController', require('controllers/exactSwing'))
           .controller('ResultsController', require('controllers/results'))
-          .controller('TestController', require('controllers/test'));
+          .controller('CEAstartController', require('controllers/CEAstart'));
 });
