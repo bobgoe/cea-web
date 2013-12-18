@@ -1,0 +1,41 @@
+{
+  "title": "Example CEA",
+  "states": {
+    "Healthy": {
+      "title": "Healthy",
+      "statecost": 50
+    },
+    "Diseased": {
+      "title": "Diseased",
+      "statecost": 75
+    },
+    "Death": {
+      "title": "Death",
+      "statecost": 0
+    }
+  },
+  "measuredeffect": [1,1,0],
+  "interventions": {
+    "Eerste": {
+      "title": "Eerste",
+      "interventioncost": 2000,
+      "transition": [17,0,0,2,15,0,1,5,20]
+    },
+    "Tweede": {
+      "title": "Tweede",
+      "interventioncost": 250,
+      "transition": [8,0,0,6,10,0,6,10,20]
+    },
+    "Derde": {
+      "title": "Derde",
+      "interventioncost": 0,
+      "transition": [4,0,0,6,5,0,10,14,20]
+    }
+  },
+  "discountbenefits": 0.00,
+  "discountcosts": 0.06,
+  "iterations": 50,
+  "cycles": 5,
+  "wtpmax": 2500,
+  "wtpstep": 250
+}

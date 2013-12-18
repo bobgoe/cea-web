@@ -9,7 +9,9 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
     var run = function(state) {
       state = angular.copy(state);
       var data = _.extend(state.problem, { "preferences": state.prefs, "method": "smaa" });
+      console.log("data: ", data)
       var task = patavi.submit('smaa', data);
+      console.log("task: ", task)
 
       var successHandler = function(results) {
         $scope.$root.$safeApply($scope, function() {

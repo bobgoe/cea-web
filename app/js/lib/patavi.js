@@ -39,6 +39,7 @@ return (function () {
 
   var patavi = {
     submit: function (method, payload) {
+      console.log("Calling", method, "with", payload);
       return new Task(method, payload);
     }
   };
