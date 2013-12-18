@@ -1,28 +1,17 @@
+# Require: smaa, DirichletReg, abind, RJSONIO
+require ('DirichletReg')
+require ('abind')
+
 test <- function(params){
-  #print(input)
-  # input <- fromJSON(file('../../examples/CEA/CEAexample.json'))
-  # ceacData <- cea(input)
-  # print(ceacData)
   
-  #hoi2 <- input$cycles
-  #bla <- rdirichlet(1,c(4,16))
-  #print(bla)
-  #bla
+  ceacData <- cea(params)
+  ceacData
   
-  # P <- distribution.dirichlet(numberOfStates,transitionInput,alternatives,P)
-  
-  
-  # ceacData <- cea(input)
-  # ceacData
-  params
 }
 
 cea <-function(input){
  
- ########## Inputs from website ##########
- 
- # Should come from JSON file
-
+ ########## Inputs from website / JSON ##########
  
  # Amount of states
  numberOfStates <- length(input$states)
@@ -131,18 +120,29 @@ cea <-function(input){
    lambda <- lambda + wtp.step
  }
  
+ # create proper list
+ x <- list()
+ for (i in 1:3){
+   
+   ceac.data <- cbind(lambda.vec,cost.effect.accep[,i])
+   colnames(ceac.data) <- c("x","y")
+   x[[i]] <- ceac.data
+   names(x)[[i]] <- c(i)
+   
+ }
+ 
+ cost.effect.accep <- cbind(lambda.vec,cost.effect.accep)
+ colnames(cost.effect.accep) <- c("x","1","2","3")
+ cost.effect.accep
+ 
+ x
+ 
  # finally map the rows to the lambda against which we plot
- ceac.data <- cbind(lambda.vec,cost.effect.accep)
+#  ceac.data <- cbind(lambda.vec,cost.effect.accep[,1])
+#  colnames(ceac.data) <- c("x","Y")
+#  ceac.data
  
- # Remove row names for now
- rownames(ceac.data) <- NULL
- 
- # print temp outputs
- # print(ceac.data)
- 
- # We can now plot ceac.data, y axis = Probability of being cost-effective, x axis = Willingness-to-pay
- 
- ceac.data
+ #cost.effect.accep
  
 }
 
