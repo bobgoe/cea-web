@@ -17,7 +17,7 @@ cea <-function(input){
  numberOfStates <- length(input$states)
  
  # Number of alternatives
- alternatives <- length(input$interventions)
+ alternatives <- length(input$alternatives)
  
  iterations <- input$iterations
  cycles <- input$cycles

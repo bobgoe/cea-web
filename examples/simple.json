@@ -15,7 +15,7 @@
     }
   },
   "measuredeffect": [1,1,0],
-  "interventions": {
+  "alternatives": {
     "Eerste": {
       "title": "Eerste",
       "interventioncost": 2000,

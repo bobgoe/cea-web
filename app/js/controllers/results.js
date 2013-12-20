@@ -8,9 +8,9 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
 
     var run = function(state) {
       state = angular.copy(state);
-      var data = _.extend(state.problem, { "preferences": state.prefs, "method": "smaa" });
+      var data = state.problem;
       console.log("data: ", data)
-      var task = patavi.submit('smaa', data);
+      var task = patavi.submit('cea', data);
       console.log("task: ", task)
 
       var successHandler = function(results) {
@@ -54,45 +54,40 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
       });
       return result;
     });
-
-    var getAlterativesByRank = _.memoize(function(state) {
-      var data = state.results.ranks.data;
-      var rank = parseInt(state.selectedRank);
-      var values = _.map(_.pairs(data), function(alternative) {
-        return {label: alternativeTitle(alternative[0]), value: alternative[1][rank] };
-      });
-      var name = "Alternatives for rank " + (rank + 1);
-      return [{ key: name, values: values }];
-    }, function(val) { // Hash function
-      return 31 * val.selectedRank.hashCode() + angular.toJson(val.results).hashCode();
+    
+    var getCEAC = _.memoize(function(state) {
+      var data = state.results;
+      var result = [];
+      
+      for(var i in data) {
+        var resultLine = {};
+        var line = data[i];
+        
+        resultLine.key = i;
+        resultLine.labels = [];
+        resultLine.values = [];
+        for(var j in line) {
+          var value = {};
+          value.series = 0;
+          value.x = line[j].x;
+          value.y = line[j].y;
+          resultLine.values.push(value);
+          var hoi = line[j].x;
+          console.log("xlabel: ", hoi);
+          resultLine.labels.push(hoi);
+        }
+        
+        result.push(resultLine);
+      }
+      return result;
     });
-
-    var getRanksByAlternative = _.memoize(function(state) {
-      var data = state.results.ranks.data;
-      var alternative = state.selectedAlternative;
-      var values = [];
-      _.each(data[alternative], function(rank, index) {
-        values.push({ label: "Rank " + (index + 1), value: [rank] });
-      });
-      return [{ key: alternativeTitle(alternative), values: values }];
-    }, function(val) {
-      return 31 * val.selectedAlternative.hashCode() + angular.toJson(val.results).hashCode();
-    });
-
+    
     var initialize = function(state) {
-      alternatives = _.clone(state.problem.alternatives);
-      criteria = _.clone(state.problem.criteria);
-      var next = _.extend(state, {
-        selectedAlternative: _.keys(alternatives)[0],
-        selectedRank: "0",
-        ranksByAlternative: getRanksByAlternative,
-        alternativesByRank: getAlterativesByRank,
-        centralWeights: getCentralWeights
-      });
+      var next = _.extend(state, {});
       return run(next);
     };
 
     $scope.currentStep = initialize(taskDefinition.clean(currentScenario.state));
-
+    $scope.CEAC = getCEAC;
   };
 });

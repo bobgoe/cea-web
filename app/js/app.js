@@ -115,13 +115,7 @@ define(
 			  url: '/choose-problem',
               templateUrl: baseTemplatePath + 'chooseProblem.html',
               controller: "ChooseProblemController" 
-          })
-	      .state('CEAstart', {
-	          url: '/CEAstart',
-	          templateUrl: baseTemplatePath + 'CEAstart.html',
-	          controller: "CEAstartController"
-	      })
-	  ;    
+          });    
       
       $urlRouterProvider.otherwise('/choose-problem');
       

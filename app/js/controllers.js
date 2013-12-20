@@ -5,11 +5,5 @@ define(function(require) {
           .controller('ChooseProblemController', require('controllers/chooseProblem'))
           .controller('WorkspaceController', require('controllers/workspace'))
           .controller('OverviewController', require('controllers/overview'))
-          .controller('ScaleRangeController', require('controllers/scaleRange'))
-          .controller('PartialValueFunctionController', require('controllers/partialValueFunction'))
-          .controller('OrdinalSwingController', require('controllers/ordinalSwing'))
-          .controller('IntervalSwingController', require('controllers/intervalSwing'))
-          .controller('ExactSwingController', require('controllers/exactSwing'))
-          .controller('ResultsController', require('controllers/results'))
-          .controller('CEAstartController', require('controllers/CEAstart'));
+          .controller('ResultsController', require('controllers/results'));
 });

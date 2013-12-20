@@ -1,8 +1,8 @@
 'use strict';
-define(['config', 'angular', 'underscore', 'services/partialValueFunction'], function(Config, angular, _) {
-  var dependencies = ['elicit.pvfService'];
+define(['config', 'angular', 'underscore'], function(Config, angular, _) {
+  var dependencies = [];
 
-  var Workspaces = function(PartialValueFunction, $rootScope, $q, $location)  {
+  var Workspaces = function($rootScope, $q, $location)  {
     function randomId(size, prefix) {
       var text = "";
       var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -36,7 +36,6 @@ define(['config', 'angular', 'underscore', 'services/partialValueFunction'], fun
       workspace.getScenario = function(id) {
         var deferred = $q.defer();
         var scenario  = workspace.scenarios[id];
-        PartialValueFunction.attach(scenario.state);
         scenario.redirectToDefaultView = function() {
           redirectToDefaultView(workspace.id, id);
         };
