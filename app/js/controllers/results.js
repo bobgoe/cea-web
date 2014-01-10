@@ -41,19 +41,6 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
     var alternativeTitle = function(id) {
       return alternatives[id].title;
     };
-
-    var getCentralWeights = _.memoize(function(state) {
-      var data = state.results.cw.data;
-      var result = [];
-      _.each(_.pairs(data), function(alternative) {
-        var values = _.map(_.pairs(alternative[1]['w']), function(criterion, index) {
-          return { x: index, label: criterion[0], y: criterion[1] };
-        });
-        var labels = _.map(_.pluck(values, 'label'), function(id) { return criteria[id].title; });
-        result.push({ key: alternativeTitle(alternative[0]), labels: labels, values: values });
-      });
-      return result;
-    });
     
     var getCEAC = _.memoize(function(state) {
       var data = state.results;
@@ -62,23 +49,18 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
       for(var i in data) {
         var resultLine = {};
         var line = data[i];
-        
         resultLine.key = i;
-        resultLine.labels = [];
         resultLine.values = [];
+        
         for(var j in line) {
           var value = {};
-          value.series = 0;
           value.x = line[j].x;
           value.y = line[j].y;
           resultLine.values.push(value);
-          var hoi = line[j].x;
-          console.log("xlabel: ", hoi);
-          resultLine.labels.push(hoi);
         }
-        
         result.push(resultLine);
       }
+      console.log("result: ", result)
       return result;
     });
     

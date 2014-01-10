@@ -21,8 +21,6 @@ cea <-function(input){
  
  iterations <- input$iterations
  cycles <- input$cycles
- wtp.max <- input$wtpmax
- wtp.step <- input$wtpstep
  
  #doCEA(input)
  
@@ -91,6 +89,10 @@ cea <-function(input){
  # define misc values to get a ra table
  lambda <- 0
  index <- 1
+ 
+ # worst possible outcome, max costs
+ wtp.max <- max(alternativeCosts) + max(stateCosts) * cycles 
+ wtp.step <- wtp.max / 10
  steps <- wtp.max/wtp.step + 1
  lambda.vec <- rep(0,steps)
  cost.effect.accep <- c()
@@ -122,7 +124,7 @@ cea <-function(input){
  
  # create proper list
  x <- list()
- for (i in 1:3){
+ for (i in 1:alternatives){
    
    ceac.data <- cbind(lambda.vec,cost.effect.accep[,i])
    colnames(ceac.data) <- c("x","y")
@@ -130,10 +132,6 @@ cea <-function(input){
    names(x)[[i]] <- c(i)
    
  }
- 
- cost.effect.accep <- cbind(lambda.vec,cost.effect.accep)
- colnames(cost.effect.accep) <- c("x","1","2","3")
- cost.effect.accep
  
  x
  
