@@ -8,11 +8,23 @@ define([], function() {
         templateUrl: "overview.html",
         requires: [],
         resets: [] },
+      { id: "disease-state-model",
+        title: "Disease State Model",
+        controller: 'DiseaseStateModel',
+        templateUrl: 'diseaseStateModel.html',
+        requires: [],
+        resets: []},
+      { id: "costaccounting",
+        title: "Account Costs",
+        controller: 'ResultsController',
+        templateUrl: 'results.html',
+        requires: [], //'disease-state-model', 'partial-value-functions'
+        resets: []},
       { id: "results",
         title: "Results",
         controller: 'ResultsController',
         templateUrl: 'results.html',
-        requires: ['scale-ranges', 'partial-value-functions'],
+        requires: [], //'scale-ranges', 'partial-value-functions'
         resets: []}
     ]};
 

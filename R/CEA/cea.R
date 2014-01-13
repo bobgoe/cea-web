@@ -15,20 +15,12 @@ library(abind)
 
 # Should come from JSON file
 input <- fromJSON(file('simple.json'))
-
-test <- function(params){
-  
-  ceacData <- cea(params)
-  ceacData
-  
-}
-
-cea <-function(input){
   
   ########## Inputs from website / JSON ##########
   
   # Amount of states
   numberOfStates <- length(input$states)
+print(numberOfStates)
   
   # Number of alternatives
   alternatives <- length(input$alternatives)
@@ -37,7 +29,14 @@ cea <-function(input){
   cycles <- input$cycles
   
   #doCEA(input)
-  
+
+  yolo <- array(, dim=c(numberOfStates,numberOfStates,alternatives) )
+
+  for (i in 1:length(input$alternatives)){
+    blaat <- input$alternatives[[i]]$transition
+    yolo[,,i] <- blaat
+  }
+
   # For now we only test two criteria
   criteria <- 2
   
@@ -46,6 +45,12 @@ cea <-function(input){
   
   # Costs, alternativeCosts is startup costs
   alternativeCosts <- matrix(c(2000,250,0), nrow = 1, ncol = alternatives, )
+  alternativeCosts2 <- matrix(, nrow = 1, ncol = alternatives, )
+
+    for (i in 1:length(input$alternatives)){
+      blaat <- input$alternatives[[i]]$interventioncost
+      alternativeCosts2[,i] <- blaat
+    }
   
   # and costs assosciated with each state
   stateCosts <- array(c(50,50,50,75,75,75,5,5,5), dim=c(numberOfStates,numberOfStates,alternatives))
@@ -140,7 +145,6 @@ cea <-function(input){
   x <- list()
   
   bla <- c('eerste','tweede','derde')
-  print(bla)
   
   for (i in 1:alternatives){
     
@@ -153,8 +157,6 @@ cea <-function(input){
   
   x
   
-  print(input$alternatives)
-  
   print(x)
   
   # finally map the rows to the lambda against which we plot
@@ -164,7 +166,6 @@ cea <-function(input){
   
   #cost.effect.accep
   
-}
 
 ### Function definitions ###
 
@@ -278,5 +279,3 @@ weightCon <- function(lambda,scales) {
   w.2 <- (scales[2,2] - scales[1,2])/(lambda*(scales[2,1]-scales[1,1]) + scales[2,2] - scales[1,2])
   c(w.1,w.2)
 }
-
-test(input)

@@ -5,5 +5,6 @@ define(function(require) {
           .controller('ChooseProblemController', require('controllers/chooseProblem'))
           .controller('WorkspaceController', require('controllers/workspace'))
           .controller('OverviewController', require('controllers/overview'))
-          .controller('ResultsController', require('controllers/results'));
+          .controller('ResultsController', require('controllers/results'))
+          .controller('DiseaseStateModel', require('controllers/diseaseStateModel'));
 });

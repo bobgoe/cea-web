@@ -1,0 +1,14 @@
+<div>
+  <h2>{{title}}</h2>
+  <p>Disease State Model verhaal</p>
+  <ul class="no-bullet">
+    <li ng-repeat="(key, criterion) in currentStep.problem.alternatives">
+      <h5 class="subheader">{{criterion.title}}</h5>
+      <div class="row">
+        <input type="number" ng-model="criterion.interventioncost">
+      </div>
+      <br>
+    </li>
+  </ul>
+  <button class="small success" ng-click="save(currentStep)">Save</button>
+</div>
