@@ -28,10 +28,20 @@ cea <-function(input){
  criteria <- 2
  
  # All the beta values for transition states
- transitionInput <- array(c(17,0,0,2,15,0,1,5,20,8,0,0,6,10,0,6,10,20,4,0,0,6,5,0,10,14,20), dim=c(numberOfStates,numberOfStates,alternatives) )
+ transitionInput <- array(, dim=c(numberOfStates,numberOfStates,alternatives) )
+ 
+ for (i in 1:length(input$alternatives)){
+   blaat <- input$alternatives[[i]]$transition
+   transitionInput[,,i] <- blaat
+ }
  
  # Costs, alternativeCosts is startup costs
- alternativeCosts <- matrix(c(2000,250,0), nrow = 1, ncol = alternatives, )
+ alternativeCosts <- matrix(, nrow = 1, ncol = alternatives, )
+ 
+ for (i in 1:length(input$alternatives)){
+   blaat <- input$alternatives[[i]]$interventioncost
+   alternativeCosts[,i] <- blaat
+ }
  
  # and costs assosciated with each state
  stateCosts <- array(c(50,50,50,75,75,75,5,5,5), dim=c(numberOfStates,numberOfStates,alternatives))
@@ -123,17 +133,17 @@ cea <-function(input){
  }
  
  # create proper list
- x <- list()
+ ceac <- list()
  for (i in 1:alternatives){
    
    ceac.data <- cbind(lambda.vec,cost.effect.accep[,i])
    colnames(ceac.data) <- c("x","y")
-   x[[i]] <- ceac.data
-   names(x)[[i]] <- c(i)
+   ceac[[i]] <- ceac.data
+   names(ceac)[[i]] <- c(i)
    
  }
  
- x
+ ceac
  
  # finally map the rows to the lambda against which we plot
 #  ceac.data <- cbind(lambda.vec,cost.effect.accep[,1])
