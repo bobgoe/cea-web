@@ -3,6 +3,7 @@ define(['angular', 'lib/patavi', 'underscore'], function(angular, patavi, _) {
   return function($scope, currentScenario, taskDefinition) {
     var alternatives;
     var criteria;
+    var scenario = currentScenario;
 
     var run = function(state) {
       state = angular.copy(state);
@@ -43,12 +44,11 @@ define(['angular', 'lib/patavi', 'underscore'], function(angular, patavi, _) {
     $scope.save = function(currentState) {
           var state = angular.copy(currentState);
           // Rewrite scale information
-          _.each(_.pairs(state.choice), function(choice) {
-            state.problem.criteria[choice[0]].pvf.range = [choice[1].lower, choice[1].upper];
-          });
           scenario.update(state);
           scenario.redirectToDefaultView();
         };
 
+        
+        
   };
 });
