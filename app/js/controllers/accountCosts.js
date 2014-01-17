@@ -1,10 +1,9 @@
 'use strict';
-define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, patavi, _, NProgress) {
-  return function($rootScope, $scope, currentScenario, taskDefinition) {
+define(['angular', 'lib/patavi', 'underscore'], function(angular, patavi, _) {
+  return function($scope, currentScenario, taskDefinition) {
     var alternatives;
     var criteria;
-
-    $rootScope.noProgress = true;
+    var scenario = currentScenario;
 
     var run = function(state) {
       state = angular.copy(state);
@@ -14,7 +13,6 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
       var successHandler = function(results) {
         $scope.$root.$safeApply($scope, function() {
           state.results = results.results;
-          $rootScope.noProgress = false;
         });
       };
 
@@ -35,38 +33,17 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
       task.results.then(successHandler, errorHandler, updateHandler);
       return state;
     };
-
-    var alternativeTitle = function(id) {
-      return alternatives[id].title;
-    };
-    
-    var getCEAC = _.memoize(function(state) {
-      var data = state.results;
-      var result = [];
-      
-      for(var i in data) {
-        var resultLine = {};
-        var line = data[i];
-        resultLine.key = i;
-        resultLine.values = [];
-        
-        for(var j in line) {
-          var value = {};
-          value.x = line[j].x;
-          value.y = line[j].y;
-          resultLine.values.push(value);
-        }
-        result.push(resultLine);
-      }
-      return result;
-    });
     
     var initialize = function(state) {
       var next = _.extend(state, {});
       return run(next);
     };
-
+    
     $scope.currentStep = initialize(taskDefinition.clean(currentScenario.state));
-    $scope.CEAC = getCEAC;
+    
+    $scope.save = function(currentState) {
+      scenario.update(state);
+      scenario.redirectToDefaultView();
+    };
   };
 });

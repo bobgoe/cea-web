@@ -31,7 +31,7 @@ cea <-function(input){
  transitionInput <- array(, dim=c(numberOfStates,numberOfStates,alternatives) )
  
  for (i in 1:length(input$alternatives)){
-   blaat <- input$alternatives[[i]]$transition
+   blaat <- matrix(unlist(input$alternatives[[i]]$transition), ncol=numberOfStates, byrow=TRUE)
    transitionInput[,,i] <- blaat
  }
  
@@ -260,7 +260,7 @@ scaleRange <- function(SMAAInput,alternatives,criteria) {
  rbind(low,high)
 }
 
-# Gerneate weight for current lambda
+# Generate weight for current lambda
 weightCon <- function(lambda,scales) {
  w.1 <- lambda*(scales[2,1]-scales[1,1])/(lambda*(scales[2,1]-scales[1,1]) + scales[2,2] - scales[1,2])
  w.2 <- (scales[2,2] - scales[1,2])/(lambda*(scales[2,1]-scales[1,1]) + scales[2,2] - scales[1,2])

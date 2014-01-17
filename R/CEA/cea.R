@@ -41,7 +41,21 @@ print(numberOfStates)
   criteria <- 2
   
   # All the beta values for transition states
-  transitionInput <- array(c(17,0,0,2,15,0,1,5,20,8,0,0,6,10,0,6,10,20,4,0,0,6,5,0,10,14,20), dim=c(numberOfStates,numberOfStates,alternatives) )
+  # matrix(unlist(fromJSON('[[17,2,1],[0,15,5],[0,0,20]]')), ncol=3, byrow=TRUE)
+  transitionInput <- array(, dim=c(numberOfStates,numberOfStates,alternatives) )
+  
+  for (i in 1:length(input$alternatives)){
+    blaat <- input$alternatives[[i]]$transition
+    transitionInput[,,i] <- blaat
+  }
+
+  print (transitionInput)
+
+  input2 <- fromJSON(file('simple2.json'))
+  hoi <- matrix(unlist(input$alternatives[[1]]$transition), ncol=numberOfStates)
+                
+  print("met unlist!: ")
+  print(hoi)
   
   # Costs, alternativeCosts is startup costs
   alternativeCosts <- matrix(c(2000,250,0), nrow = 1, ncol = alternatives, )

@@ -1,11 +1,28 @@
 <div>
   <h2>{{title}}</h2>
-  <p>Disease State Model verhaal</p>
+  <p>This page defines the transition rates between states per alternative. Right now the only inputs are patient level transition reports to form a multinomial beta (Dirichlet) distribution.</p>
   <ul class="no-bullet">
-    <li ng-repeat="(key, criterion) in currentStep.problem.alternatives">
-      <h5 class="subheader">{{criterion.title}}</h5>
-      <div class="row">
-        <input type="number" ng-model="criterion.interventioncost">
+    <li ng-repeat="(key, alternative) in currentStep.problem.alternatives">
+      <h5 class="subheader">{{alternative.title}}</h5>
+      <div class="row" ng-repeat="row in iterableTransitions[key]">
+        <div class="columns">           
+              <table class="table table-striped table-condensed table-hover" style="font-size: 20px;">
+                  <thead>
+                      <tr>
+                          <th ng-repeat="cell in row.cells" ng-model="cell.value"> {{cell.state}}
+                          </th> 
+                      </tr>
+                  </thead>                       
+                  <tbody>    
+                      </tr ng-repeat="row in iterableTransitions[key]">                                  
+                          <td ng-repeat="cell in row.cells" ng-model="cell.value">
+                            <input type="number" ng-model="cell.value">
+                          </td> 
+                      </tr>
+                  </tbody>                             
+              </table> 
+              
+        </div>
       </div>
       <br>
     </li>

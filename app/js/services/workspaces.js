@@ -14,14 +14,12 @@ define(['config', 'angular', 'underscore'], function(Config, angular, _) {
     }
 
     var save = function(id, workspace) {
-      console.info("saving", workspace);
       localStorage.setItem(id, angular.toJson(workspace));
       $rootScope.$broadcast("elicit.scenariosChanged");
       return workspace;
     };
 
     var redirectToDefaultView = function(workspaceId, scenarioId) {
-      console.info("redirecting to", workspaceId, scenarioId);
       var nextUrl = "/workspaces/" + workspaceId + "/scenarios/" + scenarioId + "/" + Config.defaultView;
       $location.path(nextUrl);
     };
