@@ -24,6 +24,21 @@ print(numberOfStates)
   
   # Number of alternatives
   alternatives <- length(input$alternatives)
+
+print(alternatives)
+
+bla <- input$alternatives
+print(bla)
+
+
+
+for (i in 1:length(input$alternatives)){
+  blaat <- input$alternatives[[i]]$title
+  print(blaat)
+}
+
+
+print(hoi)
   
   iterations <- input$iterations
   cycles <- input$cycles

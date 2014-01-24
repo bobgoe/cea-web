@@ -29,7 +29,7 @@
     "Derde": {
       "title": "Derde",
       "interventioncost": 0,
-      "transition": [[4,6,10],[0,5,20],[0,0,20]]
+      "transition": [[4,6,10],[0,5,15],[0,0,20]]
     }
   },
   "discountbenefits": 0.00,

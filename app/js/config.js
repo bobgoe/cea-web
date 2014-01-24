@@ -25,6 +25,12 @@ define([], function() {
         controller: 'ResultsController',
         templateUrl: 'results.html',
         requires: [], //'scale-ranges', 'partial-value-functions'
+        resets: []},
+      { id: "graph-creator",
+        title: "Graph Creator TEST",
+        controller: 'GraphCreatorController',
+        templateUrl: 'graphCreator.html',
+        requires: [], //'scale-ranges', 'partial-value-functions'
         resets: []}
     ]};
 

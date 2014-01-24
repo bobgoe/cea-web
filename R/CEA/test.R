@@ -72,16 +72,21 @@ cea <-function(input){
      # Before we start we assume there are startup costs
      measurements[iteration, alternative, 2] <-  measurements[iteration, alternative, 2] + alternativeCosts[1,alternative]
      
-     for (cycle in 1:cycles){
-       
-       # add effects ( Matrix algebra )
-       measurements[iteration, alternative, 1] <- measurements[iteration, alternative, 1] + sum(P[state, , alternative]*measuredEffect[, state, alternative ]) / ( ( 1 + input$discountbenefits ) ^ cycle )
-       
-       # add costs ( Matrix algebra )
-       measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(P[state, , alternative]*stateCosts[, state, alternative ]) / ( ( 1 + input$discountcosts ) ^ cycle ) 
-       
-       # determine which state we transition to
-       state <- sample(1:numberOfStates,size=1,prob=P[state, , alternative   ])
+     # Each transition matrix should be evaluated i times, otherwise we have to much skew
+     # for (iteration in 1:iterations){
+     
+       for (cycle in 1:cycles){
+         
+         # add effects ( Matrix algebra )
+         measurements[iteration, alternative, 1] <- measurements[iteration, alternative, 1] + sum(P[state, , alternative]*measuredEffect[, state, alternative ]) / ( ( 1 + input$discountbenefits ) ^ cycle )
+         
+         # add costs ( Matrix algebra )
+         measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(P[state, , alternative]*stateCosts[, state, alternative ]) / ( ( 1 + input$discountcosts ) ^ cycle ) 
+         
+         # determine which state we transition to
+         state <- sample(1:numberOfStates,size=1,prob=P[state, , alternative   ])
+         
+       # }
        
      }
      
@@ -135,23 +140,12 @@ cea <-function(input){
  # create proper list
  ceac <- list()
  for (i in 1:alternatives){
-   
    ceac.data <- cbind(lambda.vec,cost.effect.accep[,i])
    colnames(ceac.data) <- c("x","y")
    ceac[[i]] <- ceac.data
    names(ceac)[[i]] <- c(i)
-   
  }
- 
  ceac
- 
- # finally map the rows to the lambda against which we plot
-#  ceac.data <- cbind(lambda.vec,cost.effect.accep[,1])
-#  colnames(ceac.data) <- c("x","Y")
-#  ceac.data
- 
- #cost.effect.accep
- 
 }
 
 ### Function definitions ###
@@ -163,8 +157,6 @@ getSMAA <- function(scales, alternatives, criteria, iterations,measurements){
  
  for ( j in 1 : alternatives){
    for ( i in 1 : criteria ){
-     
-     # For measured effect highest is best, for cost lowest is best
      if( i == 1){
        SMAAInput [ , j, i] <- smaa.pvf(measurements[ , j, i],
                                        cutoffs=c(scales[1,i], scales[2,i]),
@@ -179,13 +171,10 @@ getSMAA <- function(scales, alternatives, criteria, iterations,measurements){
      }
    }
  }
- 
  SMAAInput
- 
 }
 
 # generate transition matrix based on dirichlet distribution
-
 distribution.dirichlet <- function(numberOfStates,transitionArray,alternatives,P){
  
  for ( a in 1 : alternatives ){
@@ -204,25 +193,16 @@ distribution.dirichlet <- function(numberOfStates,transitionArray,alternatives,P
      iterator <- 1
      
      for( column in 1 : numberOfStates ) {
-       
        # By default Dirichlet does not accept values of zero
        if(transitionArray[row, column, a]==0){
-         
          nextRow[1,column] <- transitionArray[row, column, a]
-         
        }else{
-         
          input <- matrix(transitionArray[row, column, a],nrow=1,ncol=1,)
          dirichletInput <- cbind(dirichletInput,input)
          iterator <- iterator + 1
-         
        }
      }
-     
-     # With all the non zero values, determine a Dirichlet distribution
      dirichlet <- rdirichlet(1, dirichletInput)
-     
-     # Fill the row that is to be added to the transition matrix
      rowToAdd <- matrix( , nrow = 1, ncol = numberOfStates, )
      iterator2 <- 1
      for( i in 1 : numberOfStates ){
@@ -233,18 +213,12 @@ distribution.dirichlet <- function(numberOfStates,transitionArray,alternatives,P
          rowToAdd[1,i] <- 0 
        }
      }
-     
      X<- rbind(X, rowToAdd)
-     
    }
-   
    # Fill the transition matrix P
    P <- abind( P, X, along=3 )
-   
  }
- 
  P
- 
 }
 
 # criteria = measured effect and cost

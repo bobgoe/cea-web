@@ -42,6 +42,7 @@ define(['angular', 'lib/patavi', 'underscore'], function(angular, patavi, _) {
     $scope.currentStep = initialize(taskDefinition.clean(currentScenario.state));
     
     $scope.save = function(currentState) {
+      var state = angular.copy(currentState);
       scenario.update(state);
       scenario.redirectToDefaultView();
     };

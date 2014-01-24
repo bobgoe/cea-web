@@ -7,5 +7,6 @@ define(function(require) {
           .controller('OverviewController', require('controllers/overview'))
           .controller('ResultsController', require('controllers/results'))
           .controller('DiseaseStateModelController', require('controllers/diseaseStateModel'))
-          .controller('AccountCostsController', require('controllers/accountCosts'));
+          .controller('AccountCostsController', require('controllers/accountCosts'))
+          .controller('GraphCreatorController', require('controllers/graphCreator'));
 });
