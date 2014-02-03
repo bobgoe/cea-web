@@ -182,6 +182,14 @@ define(['require', 'angular', 'underscore', 'jQuery', 'd3', 'nvd3'], function(re
       }
     };
   });
+  
+  directives.directive('graphCreator', function() {
+    return {
+      //restrict: 'E',
+      //controller: 'GraphCreatorController',
+      template: "joehoe!"// <div id="chart"></div>'
+    };
+  });
 
   directives.directive('lineChart', function() {
     return {
