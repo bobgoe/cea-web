@@ -3,10 +3,8 @@ require ('DirichletReg')
 require ('abind')
 
 test <- function(params){
-  
   ceacData <- cea(params)
   ceacData
-  
 }
 
 cea <-function(input){
@@ -21,8 +19,6 @@ cea <-function(input){
  
  iterations <- input$iterations
  cycles <- input$cycles
- 
- #doCEA(input)
  
  # For now we only test two criteria
  criteria <- 2
@@ -44,10 +40,28 @@ cea <-function(input){
  }
  
  # and costs assosciated with each state
- stateCosts <- array(c(50,50,50,75,75,75,5,5,5), dim=c(numberOfStates,numberOfStates,alternatives))
+ stateCosts <-  matrix(, nrow=1, ncol=numberOfStates, byrow=T)
+ 
+ for (i in 1:numberOfStates){
+   blaat <- input$states[[i]]$statecost
+   stateCosts[,i] <- blaat
+ }
  
  #measured effect
- measuredEffect <- array(c(input$measuredeffect), dim=c(numberOfStates,numberOfStates,alternatives))
+ measuredEffect <- matrix(, nrow=1, ncol=numberOfStates, byrow=T)
+ 
+ for (i in 1:numberOfStates){
+   blaat <- input$states[[i]]$measuredeffect
+   measuredEffect[,i] <- blaat
+ }
+ 
+ # Information about in which state patients start
+ startStates <-  matrix(, nrow=numberOfStates, ncol=1, byrow=T)
+ 
+ for (i in 1:numberOfStates){
+   blaat <- input$states[[i]]$startingPatients
+   startStates[i,] <- blaat
+ }
  
  ########## End of inputs from website ##########
  
@@ -66,34 +80,32 @@ cea <-function(input){
    # Within this iteration, we calculate each alternative
    for (alternative in 1:alternatives){
      
-     # Start at cycle 1
-     state <- 1
+     transitionMatrix <- t(P[,,alternative])
      
-     # Before we start we assume there are startup costs
-     measurements[iteration, alternative, 2] <-  measurements[iteration, alternative, 2] + alternativeCosts[1,alternative]
+     # Before we start, assign costs related to each alternative
+     measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + ( alternativeCosts[,alternative] * sum(startStates) )
      
-     # Each transition matrix should be evaluated i times, otherwise we have to much skew
-     # for (iteration in 1:iterations){
-     
-       for (cycle in 1:cycles){
-         
-         # add effects ( Matrix algebra )
-         measurements[iteration, alternative, 1] <- measurements[iteration, alternative, 1] + sum(P[state, , alternative]*measuredEffect[, state, alternative ]) / ( ( 1 + input$discountbenefits ) ^ cycle )
-         
-         # add costs ( Matrix algebra )
-         measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(P[state, , alternative]*stateCosts[, state, alternative ]) / ( ( 1 + input$discountcosts ) ^ cycle ) 
-         
-         # determine which state we transition to
-         state <- sample(1:numberOfStates,size=1,prob=P[state, , alternative   ])
-         
-       # }
+     for (cycle in 1:cycles){
+       
+       # Determine how many patients end up in which state
+       if (cycle == 1){
+         patientsInStates <- startStates
+       } else {
+         patientsInStates <- patientsInStatesAfterCalc
+       }
+       patientsInStatesAfterCalc <- transitionMatrix %*% patientsInStates
+       
+       # Determine the effects from each state
+       effects <- apply(measuredEffect, 1, function(x) x / (1 + input$discountbenefits) ^ cycle )        
+       measurements[iteration, alternative, 1] <- measurements[iteration, alternative, 1] + sum(patientsInStatesAfterCalc * effects)
+       
+       # Determine the costs from each state
+       costs <- apply(stateCosts, 1, function(x) x / ( 1 + input$discountcosts ) ^ cycle )    
+       measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(patientsInStatesAfterCalc * costs)
        
      }
-     
    }
-   
  }
- 
  
  # To construct a graph we first rescale all values between 0 and 1, this is the input for the SMAA function
  scales <- scaleRange(measurements,alternatives,criteria)

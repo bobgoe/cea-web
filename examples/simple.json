@@ -3,35 +3,40 @@
   "states": [
     {
       "title": "Healthy",
-      "statecost": 50
+      "statecost": 50,
+	    "measuredeffect" : 1,
+      "startingPatients" : 500
     },
     {
       "title": "Diseased",
-      "statecost": 75
+      "statecost": 75,
+	    "measuredeffect" : 1,
+      "startingPatients" : 0
     },
     {
-      "title": "Dead",
-      "statecost": 0
+      "title": "Death",
+      "statecost": 0,
+	    "measuredeffect" : 0,
+      "startingPatients" : 0
     }
   ],
-  "measuredeffect": [1,1,0],
-  "alternatives": {
-    "Eerste": {
+  "alternatives": [
+    {
       "title": "Eerste",
       "interventioncost": 2000,
       "transition": [[17,2,1],[0,15,5],[0,0,20]]
     },
-    "Tweede": {
+    {
       "title": "Tweede",
       "interventioncost": 250,
       "transition": [[8,6,6],[0,10,10],[0,0,20]]
     },
-    "Derde": {
+    {
       "title": "Derde",
       "interventioncost": 0,
-      "transition": [[4,6,10],[0,5,15],[0,0,20]]
+      "transition": [[4,6,10],[0,5,20],[0,0,20]]
     }
-  },
+  ],
   "discountbenefits": 0.00,
   "discountcosts": 0.06,
   "iterations": 50,
