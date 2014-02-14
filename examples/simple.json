@@ -4,19 +4,19 @@
     {
       "title": "Healthy",
       "statecost": 50,
-	    "measuredeffect" : 1,
+	  "measuredEffect" : 1,
       "startingPatients" : 500
     },
     {
       "title": "Diseased",
       "statecost": 75,
-	    "measuredeffect" : 1,
+	  "measuredEffect" : 1,
       "startingPatients" : 0
     },
     {
       "title": "Death",
       "statecost": 0,
-	    "measuredeffect" : 0,
+	  "measuredEffect" : 0,
       "startingPatients" : 0
     }
   ],
@@ -37,8 +37,8 @@
       "transition": [[4,6,10],[0,5,20],[0,0,20]]
     }
   ],
-  "discountbenefits": 0.00,
-  "discountcosts": 0.06,
+  "discountBenefits": 0.00,
+  "discountCosts": 0.06,
   "iterations": 50,
   "cycles": 5
 }

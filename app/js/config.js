@@ -20,17 +20,23 @@ define([], function() {
         templateUrl: 'accountCosts.html',
         requires: [], //'disease-state-model', 'partial-value-functions'
         resets: []},
+      { id: "simulation-parameters",
+        title: "Simulation Parameters",
+        controller: 'SimulationParametersController',
+        templateUrl: 'simulationParameters.html',
+        requires: [], 
+        resets: []},
       { id: "results",
         title: "Results",
         controller: 'ResultsController',
         templateUrl: 'results.html',
-        requires: [], //'scale-ranges', 'partial-value-functions'
+        requires: [], 
         resets: []},
       { id: "graph-creator",
         title: "Graph Creator TEST",
         controller: 'GraphCreatorController',
         templateUrl: 'graphCreator.html',
-        requires: [], //'scale-ranges', 'partial-value-functions'
+        requires: [], 
         resets: []}
     ]};
 

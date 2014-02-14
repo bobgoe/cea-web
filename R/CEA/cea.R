@@ -115,6 +115,8 @@ input <- fromJSON(file('simple.json'))
 # Amount of states
 numberOfStates <- length(input$states)
 
+print(numberOfStates)
+
 # Number of alternatives
 alternatives <- length(input$alternatives)
 

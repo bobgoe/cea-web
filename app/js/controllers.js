@@ -8,5 +8,6 @@ define(function(require) {
           .controller('ResultsController', require('controllers/results'))
           .controller('DiseaseStateModelController', require('controllers/diseaseStateModel'))
           .controller('AccountCostsController', require('controllers/accountCosts'))
-          .controller('GraphCreatorController', require('controllers/graphCreator'));
+          .controller('GraphCreatorController', require('controllers/graphCreator'))
+          .controller('SimulationParametersController', require('controllers/simulationParameters'));
 });

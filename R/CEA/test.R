@@ -11,74 +11,61 @@ cea <-function(input){
  
  ########## Inputs from website / JSON ##########
  
- # Amount of states
  numberOfStates <- length(input$states)
+ amountOfAlternatives <- length(input$alternatives)
+
+ transitionInput <- array(, dim=c(numberOfStates,numberOfStates,amountOfAlternatives) )
+   for (i in 1:length(input$alternatives)){
+     blaat <- matrix(unlist(input$alternatives[[i]]$transition), ncol=numberOfStates, byrow=TRUE)
+     transitionInput[,,i] <- blaat
+   }
  
- # Number of alternatives
- alternatives <- length(input$alternatives)
+ alternativeCosts <- matrix(, nrow = 1, ncol = amountOfAlternatives, )
+   for (i in 1:length(input$alternatives)){
+     blaat <- input$alternatives[[i]]$interventioncost
+     alternativeCosts[,i] <- blaat
+   }
+ 
+ stateCosts <-  matrix(, nrow=1, ncol=numberOfStates, byrow=T)
+   for (i in 1:numberOfStates){
+     blaat <- input$states[[i]]$statecost
+     stateCosts[,i] <- blaat
+   }
+ 
+ measuredEffect <- matrix(, nrow=1, ncol=numberOfStates, byrow=T)
+   for (i in 1:numberOfStates){
+     blaat <- input$states[[i]]$measuredEffect
+     measuredEffect[,i] <- blaat
+   }
+ 
+ startStates <-  matrix(, nrow=numberOfStates, ncol=1, byrow=T)
+   for (i in 1:numberOfStates){
+     blaat <- input$states[[i]]$startingPatients
+     startStates[i,] <- blaat
+   }
  
  iterations <- input$iterations
  cycles <- input$cycles
- 
- # For now we only test two criteria
  criteria <- 2
- 
- # All the beta values for transition states
- transitionInput <- array(, dim=c(numberOfStates,numberOfStates,alternatives) )
- 
- for (i in 1:length(input$alternatives)){
-   blaat <- matrix(unlist(input$alternatives[[i]]$transition), ncol=numberOfStates, byrow=TRUE)
-   transitionInput[,,i] <- blaat
- }
- 
- # Costs, alternativeCosts is startup costs
- alternativeCosts <- matrix(, nrow = 1, ncol = alternatives, )
- 
- for (i in 1:length(input$alternatives)){
-   blaat <- input$alternatives[[i]]$interventioncost
-   alternativeCosts[,i] <- blaat
- }
- 
- # and costs assosciated with each state
- stateCosts <-  matrix(, nrow=1, ncol=numberOfStates, byrow=T)
- 
- for (i in 1:numberOfStates){
-   blaat <- input$states[[i]]$statecost
-   stateCosts[,i] <- blaat
- }
- 
- #measured effect
- measuredEffect <- matrix(, nrow=1, ncol=numberOfStates, byrow=T)
- 
- for (i in 1:numberOfStates){
-   blaat <- input$states[[i]]$measuredeffect
-   measuredEffect[,i] <- blaat
- }
- 
- # Information about in which state patients start
- startStates <-  matrix(, nrow=numberOfStates, ncol=1, byrow=T)
- 
- for (i in 1:numberOfStates){
-   blaat <- input$states[[i]]$startingPatients
-   startStates[i,] <- blaat
- }
+ discountBenefits <- input$discountBenefits
+ discountCosts <- input$discountCosts
  
  ########## End of inputs from website ##########
  
  # Criteria measurements. An N*m*n array, where meas[i,,] is a matrix where N is amount of iterations,
  # the m alternatives are the rows and the n criteria the columns.
- measurements <- array(data=(0:0),dim=c(iterations,alternatives,criteria))
+ measurements <- array(data=(0:0),dim=c(iterations,amountOfAlternatives,criteria))
  
  # Simulation function
  for (iteration in 1:iterations){
    
    # Start with empty transition matrix
-   P <- array(,dim=c(alternatives, numberOfStates, 0))
+   P <- array(,dim=c(amountOfAlternatives, numberOfStates, 0))
    # Fill transition matrix for this iteration
-   P <- distribution.dirichlet(numberOfStates,transitionInput,alternatives,P)
+   P <- distribution.dirichlet(numberOfStates,transitionInput,amountOfAlternatives,P)
    
    # Within this iteration, we calculate each alternative
-   for (alternative in 1:alternatives){
+   for (alternative in 1:amountOfAlternatives){
      
      transitionMatrix <- t(P[,,alternative])
      
@@ -96,11 +83,11 @@ cea <-function(input){
        patientsInStatesAfterCalc <- transitionMatrix %*% patientsInStates
        
        # Determine the effects from each state
-       effects <- apply(measuredEffect, 1, function(x) x / (1 + input$discountbenefits) ^ cycle )        
+       effects <- apply(measuredEffect, 1, function(x) x / (1 + discountBenefits) ^ cycle )        
        measurements[iteration, alternative, 1] <- measurements[iteration, alternative, 1] + sum(patientsInStatesAfterCalc * effects)
        
        # Determine the costs from each state
-       costs <- apply(stateCosts, 1, function(x) x / ( 1 + input$discountcosts ) ^ cycle )    
+       costs <- apply(stateCosts, 1, function(x) x / ( 1 + discountCosts ) ^ cycle )    
        measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(patientsInStatesAfterCalc * costs)
        
      }
@@ -108,10 +95,10 @@ cea <-function(input){
  }
  
  # To construct a graph we first rescale all values between 0 and 1, this is the input for the SMAA function
- scales <- scaleRange(measurements,alternatives,criteria)
+ scales <- scaleRange(measurements,amountOfAlternatives,criteria)
  
  # From the simulation, generate input for the SMAA package
- SMAAInput <- getSMAA(scales, alternatives, criteria, iterations,measurements)
+ SMAAInput <- getSMAA(scales, amountOfAlternatives, criteria, iterations,measurements)
  
  # define misc values to get a ra table
  lambda <- 0
@@ -125,7 +112,7 @@ cea <-function(input){
  cost.effect.accep <- c()
  
  while (lambda<=wtp.max) {
-   # Calculate the current weights, according to ( SMAA-2 : Stochastic Multicriteria Acceptability Analysis for Group Decision Making ANALYSIS FOR GROUP DECISION MAKING, 2011 )
+   # Calculate the current weights, according to (Postmus et al, 2013)
    # the current weights are returned in a N * n matrix, to be used in smaa.value see smaa package
    cur.weight <- weightCon(lambda,scales)
    
@@ -151,11 +138,11 @@ cea <-function(input){
  
  # create proper list
  ceac <- list()
- for (i in 1:alternatives){
+ for (i in 1:amountOfAlternatives){
    ceac.data <- cbind(lambda.vec,cost.effect.accep[,i])
    colnames(ceac.data) <- c("x","y")
    ceac[[i]] <- ceac.data
-   names(ceac)[[i]] <- c(i)
+   names(ceac)[[i]] <- input$alternatives[[i]]$title
  }
  ceac
 }

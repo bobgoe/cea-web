@@ -42,7 +42,6 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
     
     var getCEAC = _.memoize(function(state) {
       var data = state.results;
-      console.log(state);
       var result = [];
       
       for(var i in data) {
