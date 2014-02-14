@@ -106,7 +106,7 @@ cea <-function(input){
  
  # worst possible outcome, max costs
  wtp.max <- max(alternativeCosts) + max(stateCosts) * cycles 
- wtp.step <- wtp.max / 10
+ wtp.step <- wtp.max / 100
  steps <- wtp.max/wtp.step + 1
  lambda.vec <- rep(0,steps)
  cost.effect.accep <- c()

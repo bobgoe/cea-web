@@ -3,39 +3,32 @@
 'use strict';
 define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, patavi, _, NProgress) {
   return function($rootScope, $scope, currentScenario, taskDefinition) {
-        
-     // set up SVG for D3
-        var width  = 800,
-            height = 500,
+    
+    var scenario = currentScenario;
+    var states = _.pluck(scenario.state.problem.states, "title"); 
+    
+        // set up SVG for D3
+        var width  = 550,
+            height = 440,
             colors = d3.scale.category10();
-        
-        var svg = d3.select('#chart')
+    
+        var svg = d3.select('#app-body .graph')
           .append('svg')
-          .style("position", "absolute")
-          .style("width", width)
-          .style("height", height)
-          .style("border", 1);
-        
-        var border=1;
-        var bordercolor='black';
-        var borderPath = svg.append("rect")
-        .attr("x", 0)
-        .attr("y", 0)
-        .attr("height", height)
-        .attr("width", width)
-        .style("stroke", bordercolor)
-        .style("fill", "none")
-        .style("stroke-width", border);
+          .attr('width', width)
+          .attr('height', height);
 
         // set up initial nodes and links
         //      - nodes are known by 'id', not by index in array.
         //      - reflexive edges are indicated on the node (as a bold black circle).
         //      - links are always source < target; edge directions are set by 'left' and 'right'.
-        var nodes = [
-            {id: 0, reflexive: false}
-          ],
-          lastNodeId = 0,
-          links = [];
+        var nodes = [],
+            lastNodeId = 0,
+            links = [];
+            
+        for (var i in states) {
+          nodes.push({id: i, reflexive: false, title: states[i]});
+          lastNodeId++;
+        };
 
         // init D3 force layout
         var force = d3.layout.force()
@@ -179,7 +172,7 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
 
               // select node
               mousedown_node = d;
-              if(mousedown_node === selected_node) selected_node = null;
+              if(mousedown_node === selected_node) selected_node = null ;
               else selected_node = mousedown_node;
               selected_link = null;
 
