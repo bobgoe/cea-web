@@ -30,6 +30,36 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
           lastNodeId++;
         };
 
+        // Define links between all disease states, we do this based on transition rates from the first alternative. 
+        // So we assume that for all alternatives it is identical!
+        var transition = scenario.state.problem.alternatives[0].transition;
+        var rowExists;
+        
+        for (var from in transition) {
+          for (var to in transition[from]) {
+            rowExists = false;
+            if (transition[from][to] > 0) {
+              if (from == to) {
+                nodes[from].reflexive = true;
+              } else {
+                if ( links.length > 0 ) {
+                  for (var i in links) {
+                    if ((links[i].source.id == to) && (links[i].target.id == from)) {
+                      links[i].left = true;
+                      rowExists = true;
+                    } 
+                  }
+                  if (rowExists == false) {
+                    links.push({source: nodes[from], target: nodes[to], left: false, right: true });
+                  }
+                } else { // Case where no row exists
+                  links.push({source: nodes[from], target: nodes[to], left: false, right: true });
+                }
+              }
+            }
+          }
+        }
+        
         // init D3 force layout
         var force = d3.layout.force()
             .nodes(nodes)
