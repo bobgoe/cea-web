@@ -26,7 +26,7 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
             links = [];
             
         for (var i in states) {
-          nodes.push({id: i, reflexive: false, title: states[i]});
+          nodes.push(scenario.state.problem.states[i]);
           lastNodeId++;
         };
 
@@ -286,11 +286,32 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
 
           // insert new node at point
           var point = d3.mouse(this),
-              node = {id: ++lastNodeId, reflexive: false};
+              node = {id: lastNodeId, reflexive: false};
           node.x = point[0];
           node.y = point[1];
           nodes.push(node);
+          
+          // insert new state into the workspace
+          scenario.state.problem.states.push({
+            "id": lastNodeId,
+            "reflexive": "false",
+            "title": "NEW",
+            "statecost": 50,
+            "measuredEffect" : 1,
+            "startingPatients" : 500});
 
+          // Update the transition tables (add zero values to the transition matrixes!
+          for (var a in scenario.state.problem.alternatives){
+            for (var i in scenario.state.problem.alternatives[a].transition){
+              scenario.state.problem.alternatives[a].transition[i].push(0);
+            }
+            scenario.state.problem.alternatives[a].transition.push([]);
+            for (var s in scenario.state.problem.states) {
+              scenario.state.problem.alternatives[a].transition[lastNodeId].push(0);
+            }
+          }
+
+          ++lastNodeId          
           restart();
         }
 

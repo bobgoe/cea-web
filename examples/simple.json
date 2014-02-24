@@ -2,18 +2,24 @@
   "title": "Example CEA",
   "states": [
     {
+      "id": 0,
+      "reflexive": "false",
       "title": "Healthy",
       "statecost": 50,
 	  "measuredEffect" : 1,
       "startingPatients" : 500
     },
     {
+      "id": 1,
+      "reflexive": "false",
       "title": "Diseased",
       "statecost": 75,
 	  "measuredEffect" : 1,
       "startingPatients" : 0
     },
     {
+      "id": 2,
+      "reflexive": "false",
       "title": "Death",
       "statecost": 0,
 	  "measuredEffect" : 0,

@@ -60,7 +60,7 @@ cea <-function(input){
  for (iteration in 1:iterations){
    
    # Start with empty transition matrix
-   P <- array(,dim=c(amountOfAlternatives, numberOfStates, 0))
+   P <- array(,dim=c(numberOfStates, numberOfStates, 0))
    # Fill transition matrix for this iteration
    P <- distribution.dirichlet(numberOfStates,transitionInput,amountOfAlternatives,P)
    
@@ -100,7 +100,7 @@ cea <-function(input){
  # From the simulation, generate input for the SMAA package
  SMAAInput <- getSMAA(scales, amountOfAlternatives, criteria, iterations,measurements)
  
- # define misc values to get a ra table
+ # define misc values to get rank acceptabilities
  lambda <- 0
  index <- 1
  
