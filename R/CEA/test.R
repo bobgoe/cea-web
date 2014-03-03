@@ -26,9 +26,9 @@ cea <-function(input){
      alternativeCosts[,i] <- blaat
    }
  
- stateCosts <-  matrix(, nrow=1, ncol=numberOfStates, byrow=T)
-   for (i in 1:numberOfStates){
-     blaat <- input$states[[i]]$statecost
+ stateCosts <- matrix(, nrow=numberOfStates, ncol=amountOfAlternatives, byrow=T)
+   for (i in 1:amountOfAlternatives){
+     blaat <- input$alternatives[[i]]$stateCosts
      stateCosts[,i] <- blaat
    }
  
@@ -88,7 +88,7 @@ cea <-function(input){
        
        # Determine the costs from each state
        costs <- apply(stateCosts, 1, function(x) x / ( 1 + discountCosts ) ^ cycle )    
-       measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(patientsInStatesAfterCalc * costs)
+       measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(patientsInStatesAfterCalc * costs[alternative,])
        
      }
    }

@@ -7,6 +7,8 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
     var scenario = currentScenario;
     var states = _.pluck(scenario.state.problem.states, "title"); 
     
+    console.log("scenario", scenario.state.problem)
+    
         // set up SVG for D3
         var width  = 550,
             height = 440,
@@ -27,7 +29,8 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
             
         for (var i in states) {
           nodes.push(scenario.state.problem.states[i]);
-          lastNodeId++;
+          if (lastNodeId < scenario.state.problem.states[i].id) lastNodeId = scenario.state.problem.states[i].id;
+          console.log("lastNodeId", lastNodeId)
         };
 
         // Define links between all disease states, we do this based on transition rates from the first alternative. 
@@ -38,8 +41,8 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
         for (var from in transition) {
           for (var to in transition[from]) {
             rowExists = false;
-            if (transition[from][to] > 0) {
-              if (from == to) {
+            if (transition[from][to] != null) {
+              if (from == to && transition[from][to] != null) {
                 nodes[from].reflexive = true;
               } else {
                 if ( links.length > 0 ) {
@@ -253,6 +256,12 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
                 link = {source: source, target: target, left: false, right: false};
                 link[direction] = true;
                 links.push(link);
+                
+                // Also update transition tables from null values to 0 values
+                //scenario.state.problem.alternatives[source.id].transition[target.id] = 0;
+                for (var a in scenario.state.problem.alternatives){
+                  scenario.state.problem.alternatives[a].transition[source.id][target.id] = 0;
+                }
               }
 
               // select new link
@@ -284,6 +293,8 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
 
           if(d3.event.ctrlKey || mousedown_node || mousedown_link) return;
 
+          ++lastNodeId 
+          
           // insert new node at point
           var point = d3.mouse(this),
               node = {id: lastNodeId, reflexive: false};
@@ -295,23 +306,23 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
           scenario.state.problem.states.push({
             "id": lastNodeId,
             "reflexive": "false",
-            "title": "NEW",
-            "statecost": 50,
-            "measuredEffect" : 1,
-            "startingPatients" : 500});
-
-          // Update the transition tables (add zero values to the transition matrixes!
+            "title": "",
+            "measuredEffect" : 0,
+            "startingPatients" : 0});
+          
+          // Update the transition and statecosts tables (add zero values to the transition matrixes)!
           for (var a in scenario.state.problem.alternatives){
             for (var i in scenario.state.problem.alternatives[a].transition){
-              scenario.state.problem.alternatives[a].transition[i].push(0);
+              scenario.state.problem.alternatives[a].transition[i].push(null);
             }
-            scenario.state.problem.alternatives[a].transition.push([]);
+            var pushInto = []
             for (var s in scenario.state.problem.states) {
-              scenario.state.problem.alternatives[a].transition[lastNodeId].push(0);
+              pushInto.push(null);
             }
+            scenario.state.problem.alternatives[a].transition.push(pushInto);
+            scenario.state.problem.alternatives[a].stateCosts.push(0);
           }
-
-          ++lastNodeId          
+       
           restart();
         }
 
@@ -368,9 +379,52 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
             case 8: // backspace
             case 46: // delete
               if(selected_node) {
+                
+                // when we delete a node we delete the state and the transition inputs towards this state
+                // Remove state
+                scenario.state.problem.states.splice(selected_node.index,1);
+                
+                // Remove transition rates
+                for (var a in scenario.state.problem.alternatives){
+                  scenario.state.problem.alternatives[a].transition.splice(selected_node.index,1);
+                  for (var b in scenario.state.problem.alternatives[a].transition){
+                    scenario.state.problem.alternatives[a].transition[b].splice(selected_node.index,1);
+                  }
+                  scenario.state.problem.alternatives[a].stateCosts.splice(selected_node.index,1);
+                }
+                
+                // Also if the removed node was the highest, adjust lastNodeId
+                if (lastNodeId - 1 == selected_node.id){
+                  lastNodeId = lastNodeId - 1
+                }
+                
                 nodes.splice(nodes.indexOf(selected_node), 1);
                 spliceLinksForNode(selected_node);
               } else if(selected_link) {
+                
+                // when we delete a link we also delete the transition inputs it represents
+                console.log("selected_link", selected_link)
+                
+                if (selected_link.left == true){
+                  for (var a in scenario.state.problem.alternatives){
+                    for (var b in scenario.state.problem.alternatives[a].transition){
+                      if ( b == selected_link.source.index){
+                        scenario.state.problem.alternatives[a].transition[b][selected_link.target.index] = null;
+                      }
+                    }
+                  }
+                }
+                
+                if (selected_link.right == true){
+                  for (var a in scenario.state.problem.alternatives){
+                    for (var b in scenario.state.problem.alternatives[a].transition){
+                      if ( b == selected_link.target.index){
+                        scenario.state.problem.alternatives[a].transition[b][selected_link.source.index] = null;
+                      }
+                    }
+                  }
+                }
+                
                 links.splice(links.indexOf(selected_link), 1);
               }
               selected_link = null;

@@ -15,18 +15,29 @@
     </table>  
   </ul>
   <p>Account costs to all states upon entering such state</p>
-  <ul class="no-bullet">     
-    <table class="table table-striped table-condensed table-hover" style="font-size: 20px;">
-      <thead>
-        <tr><th> State </th><th> Costs per cycle </th> </tr>
-      </thead>                       
-      <tbody>    
-        <tr ng-repeat="(key, state) in currentStep.problem.states" >  
-          <th> {{state.title}} </th>
-          <td> <input type="number" ng-model="state.statecost"> </td>
-        </tr>
-      </tbody>                             
-    </table>  
+   <ul class="no-bullet">
+    <li ng-repeat="(key, alternative) in currentStep.problem.alternatives">
+      <h5 class="subheader">{{alternative.title}}</h5>
+        <div class="columns">           
+          <table class="table table-striped table-condensed table-hover" style="font-size: 20px;">
+            <thead>
+              <tr >
+                <th>State</th><th>Costs Concerned</th> 
+              </tr>
+            </thead>                       
+            <tbody>    
+              <tr ng-repeat="row in iterableStateCosts[alternative.title]" > 
+              <th> {{row.state}} </th>                                  
+                <td >
+                  <input type="number" ng-model="row.value">
+                </td> 
+              </tr>
+            </tbody>                             
+          </table>  
+        </div>
+      <br>
+    </li>
   </ul>
+  
   <button class="small success" ng-click="save(currentStep)">Save</button>
 </div>

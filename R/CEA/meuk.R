@@ -1,7 +1,34 @@
 # Require: smaa, DirichletReg, abind, RJSONIO
 require ('DirichletReg')
+require('smaa')
+require('RJSONIO')
+require('abind')
 
 input <- fromJSON(file('simple.json'))
+
+numberOfStates <- length(input$states)
+amountOfAlternatives <- length(input$alternatives)
+
+print(amountOfAlternatives)
+
+for (a in 1: amountOfAlternatives){
+  blaat <- input$alternatives[[a]]$title
+  hoi <- blaat
+}
+
+print(hoi)
+
+stateCosts <-  matrix(, nrow=numberOfStates, ncol=amountOfAlternatives, byrow=T)
+for (i in 1:numberOfStates){
+  blaat <- input$alternatives[[i]]$stateCosts
+  stateCosts[i,] <- blaat
+}
+
+for (a in 1:amountOfAlternatives)
+{
+  print(stateCosts[a,])
+}
+
 
 # Amount of states
 numberOfStates <- length(input$states)
