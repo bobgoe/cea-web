@@ -4,11 +4,9 @@
 define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, patavi, _, NProgress) {
   return function($rootScope, $scope, currentScenario, taskDefinition) {
     
-    var scenario = currentScenario;
+    var scenario = angular.copy(currentScenario);
     var states = _.pluck(scenario.state.problem.states, "title"); 
-    
-    console.log("scenario", scenario.state.problem)
-    
+
         // set up SVG for D3
         var width  = 550,
             height = 440,
@@ -30,7 +28,6 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
         for (var i in states) {
           nodes.push(scenario.state.problem.states[i]);
           if (lastNodeId < scenario.state.problem.states[i].id) lastNodeId = scenario.state.problem.states[i].id;
-          console.log("lastNodeId", lastNodeId)
         };
 
         // Define links between all disease states, we do this based on transition rates from the first alternative. 
@@ -261,7 +258,7 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
                 //scenario.state.problem.alternatives[source.id].transition[target.id] = 0;
                 for (var a in scenario.state.problem.alternatives){
                   scenario.state.problem.alternatives[a].transition[source.id][target.id] = 0;
-                }
+                  }
               }
 
               // select new link
@@ -293,6 +290,10 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
 
           if(d3.event.ctrlKey || mousedown_node || mousedown_link) return;
 
+          lastNodeId = 0;
+          for (var a in nodes){
+            if (nodes[a].id > lastNodeId) lastNodeId = nodes[a].id
+          }
           ++lastNodeId 
           
           // insert new node at point
@@ -381,10 +382,8 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
               if(selected_node) {
                 
                 // when we delete a node we delete the state and the transition inputs towards this state
-                // Remove state
                 scenario.state.problem.states.splice(selected_node.index,1);
                 
-                // Remove transition rates
                 for (var a in scenario.state.problem.alternatives){
                   scenario.state.problem.alternatives[a].transition.splice(selected_node.index,1);
                   for (var b in scenario.state.problem.alternatives[a].transition){
@@ -393,38 +392,14 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
                   scenario.state.problem.alternatives[a].stateCosts.splice(selected_node.index,1);
                 }
                 
-                // Also if the removed node was the highest, adjust lastNodeId
-                if (lastNodeId - 1 == selected_node.id){
-                  lastNodeId = lastNodeId - 1
-                }
-                
                 nodes.splice(nodes.indexOf(selected_node), 1);
                 spliceLinksForNode(selected_node);
               } else if(selected_link) {
                 
-                // when we delete a link we also delete the transition inputs it represents
-                console.log("selected_link", selected_link)
-                
-                if (selected_link.left == true){
-                  for (var a in scenario.state.problem.alternatives){
-                    for (var b in scenario.state.problem.alternatives[a].transition){
-                      if ( b == selected_link.source.index){
-                        scenario.state.problem.alternatives[a].transition[b][selected_link.target.index] = null;
-                      }
-                    }
-                  }
-                }
-                
-                if (selected_link.right == true){
-                  for (var a in scenario.state.problem.alternatives){
-                    for (var b in scenario.state.problem.alternatives[a].transition){
-                      if ( b == selected_link.target.index){
-                        scenario.state.problem.alternatives[a].transition[b][selected_link.source.index] = null;
-                      }
-                    }
-                  }
-                }
-                
+                // when we delete a link we also delete the transition inputs it represents, to do this we insert a null value
+                if (selected_link.left == true) alterLeftArrowIntoTransition(selected_link, null);
+                if (selected_link.right == true) alterRightArrowIntoTransition(selected_link, null);
+
                 links.splice(links.indexOf(selected_link), 1);
               }
               selected_link = null;
@@ -434,6 +409,8 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
             case 66: // B
               if(selected_link) {
                 // set link direction to both left and right
+                alterLeftArrowIntoTransition(selected_link, 0);
+                alterRightArrowIntoTransition(selected_link, 0);
                 selected_link.left = true;
                 selected_link.right = true;
               }
@@ -442,6 +419,8 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
             case 76: // L
               if(selected_link) {
                 // set link direction to left only
+                alterLeftArrowIntoTransition(selected_link, 0);
+                alterRightArrowIntoTransition(selected_link, null);
                 selected_link.left = true;
                 selected_link.right = false;
               }
@@ -450,9 +429,24 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
             case 82: // R
               if(selected_node) {
                 // toggle node reflexivity
+                
+                for (var a in scenario.state.problem.alternatives){
+                  for (var b in scenario.state.problem.alternatives[a].transition){
+                    if ( b == selected_node.index){
+                      if (scenario.state.problem.alternatives[a].transition[b][b] == null) {
+                        scenario.state.problem.alternatives[a].transition[b][b] = 0;
+                      } else {
+                        scenario.state.problem.alternatives[a].transition[b][b] = null;
+                      }
+                    }
+                  }
+                }
+                
                 selected_node.reflexive = !selected_node.reflexive;
               } else if(selected_link) {
                 // set link direction to right only
+                alterLeftArrowIntoTransition(selected_link, null);
+                alterRightArrowIntoTransition(selected_link, 0);
                 selected_link.left = false;
                 selected_link.right = true;
               }
@@ -482,5 +476,32 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
           .on('keyup', keyup);
         restart();
         
-      }
+        $scope.save = function(currentState) {
+          var state = angular.copy(currentState);
+          scenario.update(state);
+          scenario.redirectToDefaultView();
+        };
+        
+        $scope.saveState = taskDefinition.clean(scenario.state);
+        
+        var alterRightArrowIntoTransition = function(link, value) {
+          for (var a in scenario.state.problem.alternatives){
+            for (var b in scenario.state.problem.alternatives[a].transition){
+              if ( b == link.source.index){
+                scenario.state.problem.alternatives[a].transition[b][link.target.index] = value;
+              }
+            }
+          }
+        };
+        
+        var alterLeftArrowIntoTransition = function(link, value) {
+          for (var a in scenario.state.problem.alternatives){
+            for (var b in scenario.state.problem.alternatives[a].transition){
+              if ( b == link.target.index){
+                scenario.state.problem.alternatives[a].transition[b][link.source.index] = value;
+              }
+            }
+          }
+        };      
+      };
 });

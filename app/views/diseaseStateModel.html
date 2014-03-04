@@ -15,7 +15,7 @@
               <tr ng-repeat="row in iterableTransitions[alternative.title]" > 
               <th> {{row.state}} </th>                                  
                 <td ng-repeat="cell in row.cells" ng-model="cell.value">
-                  <input type="number" ng-model="cell.value">
+                  <input type="number" ng-model="cell.value" ng-disabled="disable(cell.value)">
                 </td> 
               </tr>
             </tbody>                             

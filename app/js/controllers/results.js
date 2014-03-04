@@ -9,6 +9,16 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
     var run = function(state) {
       state = angular.copy(state);
       var data = state.problem;
+
+      // Take care of all null values we use in the web space
+      for (var a in data.alternatives){
+        for (var b in data.alternatives[a].transition){
+          for (var c in data.alternatives[a].transition[b]){
+            if (data.alternatives[a].transition[b][c] == null) data.alternatives[a].transition[b][c] = 0;
+          }
+        }
+      }
+      
       var task = patavi.submit('cea', data);
 
       var successHandler = function(results) {
