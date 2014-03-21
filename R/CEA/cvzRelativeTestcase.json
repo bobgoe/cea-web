@@ -28,20 +28,20 @@
       "title": "No intervention",
       "interventioncost": 0,
       "stateCosts": [0,1805,0],
-      "transition": [[90,7,3],[null,90,10],[null,null,100]]
+      "transition": [[90,7,3],[0,90,10],[0,0,100]]
     },
     {
       "title": "Lifestyle intervention",
       "interventioncost": 400,
       "stateCosts": [300,1805,0],
-      "transition": [[92,5,3],[null,90,10],[null,null,100]]
+      "transition": [[0,0.8,1],[0,0,1],[0,0,0]]
     }
   ],
   "discountBenefits": 0.015,
   "discountCosts": 0.04,
-  "iterations": 500,
+  "iterations": 1,
   "cycles": 20,
   "minWillingnessToPay": 0,
   "maxWillingnessToPay": 20000,
-  "simulationApproach": "Probabilistic"
+  "simulationApproach": "ProbabilisticRelativeEffect"
 }

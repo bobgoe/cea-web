@@ -46,5 +46,8 @@
   "discountBenefits": 0.00,
   "discountCosts": 0.06,
   "iterations": 50,
-  "cycles": 5
+  "cycles": 5,
+  "minWillingnessToPay": 0,
+  "maxWillingnessToPay": 80000,
+  "simulationApproach": "Probabilistic"
 }

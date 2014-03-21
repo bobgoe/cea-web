@@ -1,3 +1,8 @@
+# Require: smaa, DirichletReg, abind, RJSONIO
+require ('DirichletReg')
+require ('abind')
+require ('RJSONIO')
+require ('smaa')
 ### Function definitions ###
 
 # generate input for the SMAA package
@@ -25,7 +30,7 @@ getSMAA <- function(scales, alternatives, criteria, iterations,measurements){
 }
 
 # generate transition matrix based on dirichlet distribution
-distribution.dirichlet <- function(numberOfStates,transitionArray,alternatives,P){
+sampleDirichlet <- function(numberOfStates,transitionArray,alternatives,P){
   
   for ( a in 1 : alternatives ){
     X <- matrix(, ncol=numberOfStates, nrow = 0, )
@@ -71,6 +76,42 @@ distribution.dirichlet <- function(numberOfStates,transitionArray,alternatives,P
   P
 }
 
+# generate transition probabilities based on a relative effect found on the baseline
+calculateRelativeEffect <- function(numberOfStates,transitionArray,alternatives,P){
+  
+  # we know the first alternative, so we are intrested in the others which have a relative effect
+  for ( alternative in 2 : alternatives ){
+    X <- matrix(, ncol=numberOfStates, nrow = numberOfStates, )
+    
+    for (fromState in 1:numberOfStates){
+      
+      rest <- 0
+      
+      for (toState in 1:numberOfStates){
+        
+        if (fromState != toState){
+          X[fromState, toState] <- P[fromState, toState , 1 ] * transitionArray[fromState, toState , alternative ]
+          rest <- rest + X[fromState, toState]
+        }
+      }
+      
+      #X[fromState,fromState] <- 1 - sum(X[fromState,])
+      
+      print("X")
+      print(X)
+      
+      print(X[fromState,fromState])
+      print(rest)
+      
+      
+      
+    }
+    
+    # Fill the transition matrix P
+    P <- abind( P, X, along=3 )
+  }
+  P
+}
 
 # criteria = measured effect and cost
 scaleRange <- function(SMAAInput,alternatives,criteria) {
@@ -92,180 +133,209 @@ weightCon <- function(lambda,scales) {
   c(w.1,w.2)
 }
 
-# Test doc for CEA implementation
-# R 3.0.2
 
-# Use DirichletReg package for pulling random numbers from multi beta distribution
-library(DirichletReg)
-
-# Use JSON to get data from input
-library(RJSONIO)
-
-# Use smaa package to determine confidence
-library(smaa)
-
-# Use abind to bind matrix to arrays
-library(abind)
-
-# Should come from JSON file
-input <- fromJSON(file('simple.json'))
+input <- fromJSON('cvz.json')
   
-########## Inputs from website / JSON ##########
-
-# Amount of states
-numberOfStates <- length(input$states)
-
-print(numberOfStates)
-
-# Number of alternatives
-alternatives <- length(input$alternatives)
-
-iterations <- 2 #input$iterations
-cycles <- 2 #input$cycles
-
-# For now we only test two criteria
-criteria <- 2
-
-# All the beta values for transition states
-transitionInput <- array(, dim=c(numberOfStates,numberOfStates,alternatives) )
-
-for (i in 1:length(input$alternatives)){
-  blaat <- matrix(unlist(input$alternatives[[i]]$transition), ncol=numberOfStates, byrow=TRUE)
-  transitionInput[,,i] <- blaat
-}
-
-# Costs, alternativeCosts is startup costs
-alternativeCosts <- matrix(, nrow = 1, ncol = alternatives, )
-
-for (i in 1:length(input$alternatives)){
-  blaat <- input$alternatives[[i]]$interventioncost
-  alternativeCosts[,i] <- blaat
-}
-
-# and costs assosciated with each state
-stateCosts <-  matrix(, nrow=1, ncol=numberOfStates, byrow=T)
-
-for (i in 1:numberOfStates){
-  blaat <- input$states[[i]]$statecost
-  stateCosts[,i] <- blaat
-}
-
-# and costs assosciated with each state
-startStates <-  matrix(, nrow=numberOfStates, ncol=1, byrow=T)
-
-for (i in 1:numberOfStates){
-  blaat <- input$states[[i]]$startingPatients
-  startStates[i,] <- blaat
-}
-
-discountCosts <- input$discountcosts
-discountBenefits <- input$discountbenefits
-
-#measured effect
-measuredEffect <- matrix(, nrow=1, ncol=numberOfStates, byrow=T)
-
-for (i in 1:numberOfStates){
-  blaat <- input$states[[i]]$measuredeffect
-  measuredEffect[,i] <- blaat
-}
-
-########## End of inputs from website ##########
-
-# Criteria measurements. An N*m*n array, where meas[i,,] is a matrix where N is amount of iterations,
-# the m alternatives are the rows and the n criteria the columns.
-measurements <- array(data=(0:0),dim=c(iterations,alternatives,criteria))
-
-# Simulation function
-for (iteration in 1:iterations){
+  ########## Inputs from website / JSON ##########
   
-  # Start with empty transition matrix
-  P <- array(,dim=c(alternatives, numberOfStates, 0))
   
-  # Fill transition matrix for this iteration
-  P <- distribution.dirichlet(numberOfStates,transitionInput,alternatives,P)
+  numberOfStates <- length(input$states)
+  amountOfAlternatives <- length(input$alternatives)
   
-  # Within this iteration, we calculate each alternative
-  for (alternative in 1:alternatives){
-    
-    transitionMatrix <- t(P[,,alternative])
-    
-    # Before we start, assign costs related to each alternative
-    measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + alternativeCosts[,alternative]
-    print(measurements)
-    
-    for (cycle in 1:cycles){
-      
-      # Determine how many patients end up in which state
-      if (cycle == 1){
-        patientsInStates <- startStates
-      } else {
-        patientsInStates <- patientsInStatesAfterCalc
-      }
-      patientsInStatesAfterCalc <- transitionMatrix %*% patientsInStates
-      
-      # Determine the effects from each state
-      effects <- apply(measuredEffect, 1, function(x) x / (1 + discountBenefits) ^ cycle )        
-      measurements[iteration, alternative, 1] <- measurements[iteration, alternative, 1] + ( sum(patientsInStatesAfterCalc * effects) / sum(startStates) )
-      
-      # Determine the costs from each state
-      costs <- apply(stateCosts, 1, function(x) x / ( 1 + discountCosts ) ^ cycle )    
-      measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + ( sum(patientsInStatesAfterCalc * costs) / sum(startStates) )
-      
-    }
+  transitionInput <- array(, dim=c(numberOfStates,numberOfStates,amountOfAlternatives) )
+  for (i in 1:length(input$alternatives)){
+    blaat <- matrix(unlist(input$alternatives[[i]]$transition), ncol=numberOfStates, byrow=TRUE)
+    transitionInput[,,i] <- blaat
   }
-}
-
-print(measurements)
-
-# To construct a graph we first rescale all values between 0 and 1, this is the input for the SMAA function
-scales <- scaleRange(measurements,alternatives,criteria)
-
-# From the simulation, generate input for the SMAA package
-SMAAInput <- getSMAA(scales, alternatives, criteria, iterations,measurements)
-
-# define misc values to get a ra table
-lambda <- 0
-index <- 1
-
-# worst possible outcome, max costs
-wtp.max <- max(alternativeCosts) + max(stateCosts) * cycles 
-wtp.step <- wtp.max / 10
-steps <- wtp.max/wtp.step + 1
-lambda.vec <- rep(0,steps)
-cost.effect.accep <- c()
-
-while (lambda<=wtp.max) {
-  # Calculate the current weights, according to ( SMAA-2 : Stochastic Multicriteria Acceptability Analysis for Group Decision Making ANALYSIS FOR GROUP DECISION MAKING, 2011 )
-  # the current weights are returned in a N * n matrix, to be used in smaa.value see smaa package
-  cur.weight <- weightCon(lambda,scales)
   
-  # Get rank acceptability per criteria.
-  # rank acceptability = the amount of time that the alternative is the best / amount of times the simulation is ran, which is equal to amount of patients
-  values <- smaa.values(SMAAInput, cur.weight)
-  ranks <- smaa.ranks(values) 
-  ra <- smaa.ra(ranks)
+  alternativeCosts <- matrix(, nrow = 1, ncol = amountOfAlternatives, )
+  for (i in 1:length(input$alternatives)){
+    blaat <- input$alternatives[[i]]$interventioncost
+    alternativeCosts[,i] <- blaat
+  }
   
-  # because smaa.ra outputs an m*m matrix where rows AND collumns are equal to the amount of alternatives
-  # and we only need to know which alternative has what acceptability rate
-  # we only extract the first row from smaa.ra
-  rank.accept <-  ra[1,]
+  stateCosts <- matrix(, nrow=numberOfStates, ncol=amountOfAlternatives, byrow=T)
+  for (i in 1:amountOfAlternatives){
+    blaat <- input$alternatives[[i]]$stateCosts
+    stateCosts[,i] <- blaat
+  }
   
-  # and bind it to the corresponding row
-  cost.effect.accep <- rbind(cost.effect.accep,rank.accept)
+  measuredEffect <- matrix(, nrow=1, ncol=numberOfStates, byrow=T)
+  for (i in 1:numberOfStates){
+    blaat <- input$states[[i]]$measuredEffect
+    measuredEffect[,i] <- blaat
+  }
   
-  # we also save a mapping to the lamba for which we calculated the rank acceptabilities 
-  lambda.vec[index] <- lambda
-  index <- index + 1
-  lambda <- lambda + wtp.step
-}
+  startStates <-  matrix(, nrow=numberOfStates, ncol=1, byrow=T)
+  for (i in 1:numberOfStates){
+    blaat <- input$states[[i]]$startingPatients
+    startStates[i,] <- blaat
+  }
+  
+  iterations <- input$iterations
+  cycles <- input$cycles
+  criteria <- 2
+  discountBenefits <- input$discountBenefits
+  discountCosts <- input$discountCosts
+  minWillingnessToPay <- input$minWillingnessToPay
+  maxWillingnessToPay <- input$maxWillingnessToPay
+  simulationApproach <- input$simulationApproach
+  
+  ########## End of inputs from website ##########
+  
+  # Criteria measurements. An N*m*n array, where meas[i,,] is a matrix where N is amount of iterations,
+  # the m alternatives are the rows and the n criteria the columns.
+  measurements <- array(data=(0:0),dim=c(iterations,amountOfAlternatives,criteria))
+  
+  # Simulation function, 4 approaches (deterministic, with or without relative effect & probabilistic with or without relative effect)
+  
+  switch(simulationApproach, 
+         Deterministic={
+           # TODO
+         },
+         DeterministicRelativeEffect={
+           # TODO
+         },
+         Probabilistic={
+           
+           for (iteration in 1:iterations){
+             
+             # Start with empty transition matrix
+             P <- array(,dim=c(numberOfStates, numberOfStates, 0))
+             # Fill transition matrix for this iteration
+             P <- sampleDirichlet(numberOfStates,transitionInput,amountOfAlternatives,P)
+             
+             # Within this iteration, we calculate each alternative
+             for (alternative in 1:amountOfAlternatives){
+               
+               transitionMatrix <- t(P[,,alternative])
+               
+               # Before we start, assign costs related to each alternative
+               measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + ( alternativeCosts[,alternative] * sum(startStates) )
+               
+               for (cycle in 1:cycles){
+                 
+                 # Determine how many patients end up in which state
+                 if (cycle == 1){
+                   patientsInStates <- startStates
+                 } else {
+                   patientsInStates <- patientsInStatesAfterCalc
+                 }
+                 patientsInStatesAfterCalc <- transitionMatrix %*% patientsInStates
+                 
+                 # Determine the effects from each state
+                 effects <- apply(measuredEffect, 1, function(x) x / (1 + discountBenefits) ^ cycle )        
+                 measurements[iteration, alternative, 1] <- measurements[iteration, alternative, 1] + sum(patientsInStatesAfterCalc * effects)
+                 
+                 # Determine the costs from each state
+                 costs <- apply(stateCosts, 1, function(x) x / ( 1 + discountCosts ) ^ cycle )    
+                 measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(patientsInStatesAfterCalc * costs[alternative,])
+                 
+               }
+             }
+           }
+         },
+         ProbabilisticRelativeEffect={
+           # TODO
+           
+           for (iteration in 1:iterations){
+             
+             # Start with empty transition matrix
+             P <- array(,dim=c(numberOfStates, numberOfStates, 0))
+             
+             # Fill baseline transition matrix for this iteration
+             P <- sampleDirichlet(numberOfStates,transitionInput,1,P)
+             
+             print("Baseline")
+             print(P)
+             
+             # Once we know the baseline, we apply the relative effect to obtain the transition rates for other alternatives
+             P <- calculateRelativeEffect(numberOfStates,transitionInput,amountOfAlternatives,P)
+             
+             print("alternative")
+             print(P)
+             
+             # Within this iteration, we calculate each alternative
+             for (alternative in 1:amountOfAlternatives){
+               
+               transitionMatrix <- t(P[,,alternative])
+               
+               # Before we start, assign costs related to each alternative
+               measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + ( alternativeCosts[,alternative] * sum(startStates) )
+               
+               for (cycle in 1:cycles){
+                 
+                 # Determine how many patients end up in which state
+                 if (cycle == 1){
+                   patientsInStates <- startStates
+                 } else {
+                   patientsInStates <- patientsInStatesAfterCalc
+                 }
+                 patientsInStatesAfterCalc <- transitionMatrix %*% patientsInStates
+                 
+                 # Determine the effects from each state
+                 effects <- apply(measuredEffect, 1, function(x) x / (1 + discountBenefits) ^ cycle )        
+                 measurements[iteration, alternative, 1] <- measurements[iteration, alternative, 1] + sum(patientsInStatesAfterCalc * effects)
+                 
+                 # Determine the costs from each state
+                 costs <- apply(stateCosts, 1, function(x) x / ( 1 + discountCosts ) ^ cycle )    
+                 measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(patientsInStatesAfterCalc * costs[alternative,])
+                 
+               }
+             }
+           }
+           
+           
+         }
+  )
+  
+  # To construct a graph we first rescale all values between 0 and 1, this is the input for the SMAA function
+  scales <- scaleRange(measurements,amountOfAlternatives,criteria)
+  
+  # From the simulation, generate input for the SMAA package
+  SMAAInput <- getSMAA(scales, amountOfAlternatives, criteria, iterations,measurements)
+  
+  # define misc values to get rank acceptabilities
+  lambda <- 0
+  index <- 1
+  wtp.step <- maxWillingnessToPay / 100
+  steps <- maxWillingnessToPay/wtp.step + 1
+  lambda.vec <- rep(0,steps)
+  cost.effect.accep <- c()
+  lambda <- minWillingnessToPay
+  
+  while (lambda<=maxWillingnessToPay) {
+    # Calculate the current weights, according to (Postmus et al, 2013)
+    # the current weights are returned in a N * n matrix, to be used in smaa.value see smaa package
+    cur.weight <- weightCon(lambda,scales)
+    
+    # Get rank acceptability per criteria.
+    # rank acceptability = the amount of time that the alternative is the best / amount of times the simulation is ran, which is equal to amount of patients
+    values <- smaa.values(SMAAInput, cur.weight)
+    ranks <- smaa.ranks(values) 
+    ra <- smaa.ra(ranks)
+    
+    # because smaa.ra outputs an m*m matrix where rows AND collumns are equal to the amount of alternatives
+    # and we only need to know which alternative has what acceptability rate
+    # we only extract the first row from smaa.ra
+    rank.accept <-  ra[1,]
+    
+    # and bind it to the corresponding row
+    cost.effect.accep <- rbind(cost.effect.accep,rank.accept)
+    
+    # we also save a mapping to the lamba for which we calculated the rank acceptabilities 
+    lambda.vec[index] <- lambda
+    index <- index + 1
+    lambda <- lambda + wtp.step
+  }
+  
+  # create proper list
+  ceac <- list()
+  for (i in 1:amountOfAlternatives){
+    ceac.data <- cbind(lambda.vec,cost.effect.accep[,i])
+    colnames(ceac.data) <- c("x","y")
+    ceac[[i]] <- ceac.data
+    names(ceac)[[i]] <- input$alternatives[[i]]$title
+  }
+  print(ceac)
 
-# create proper list
-ceac <- list()
-for (i in 1:alternatives){
-  ceac.data <- cbind(lambda.vec,cost.effect.accep[,i])
-  colnames(ceac.data) <- c("x","y")
-  ceac[[i]] <- ceac.data
-  names(ceac)[[i]] <- c(i)
-}
-
-print(ceac)

@@ -1,5 +1,5 @@
 {
-  "title": "CvZ 27-03-2014",
+  "title": "CvZ Relative Effectiveness Example",
   "states": [
     {
       "id": 0,
@@ -34,7 +34,7 @@
       "title": "Lifestyle intervention",
       "interventioncost": 400,
       "stateCosts": [300,1805,0],
-      "transition": [[92,5,3],[null,90,10],[null,null,100]]
+      "transition": [[0,0.8,1],[null,0,1],[null,null,0]]
     }
   ],
   "discountBenefits": 0.015,
@@ -43,5 +43,5 @@
   "cycles": 20,
   "minWillingnessToPay": 0,
   "maxWillingnessToPay": 20000,
-  "simulationApproach": "Probabilistic"
+  "simulationApproach": "ProbabilisticRelativeEffect"
 }

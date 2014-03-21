@@ -49,6 +49,9 @@ cea <-function(input){
  criteria <- 2
  discountBenefits <- input$discountBenefits
  discountCosts <- input$discountCosts
+ minWillingnessToPay <- input$minWillingnessToPay
+ maxWillingnessToPay <- input$maxWillingnessToPay
+ simulationApproach <- input$simulationApproach
  
  ########## End of inputs from website ##########
  
@@ -56,44 +59,100 @@ cea <-function(input){
  # the m alternatives are the rows and the n criteria the columns.
  measurements <- array(data=(0:0),dim=c(iterations,amountOfAlternatives,criteria))
  
- # Simulation function
- for (iteration in 1:iterations){
-   
-   # Start with empty transition matrix
-   P <- array(,dim=c(numberOfStates, numberOfStates, 0))
-   # Fill transition matrix for this iteration
-   P <- distribution.dirichlet(numberOfStates,transitionInput,amountOfAlternatives,P)
-   
-   # Within this iteration, we calculate each alternative
-   for (alternative in 1:amountOfAlternatives){
-     
-     transitionMatrix <- t(P[,,alternative])
-     
-     # Before we start, assign costs related to each alternative
-     measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + ( alternativeCosts[,alternative] * sum(startStates) )
-     
-     for (cycle in 1:cycles){
-       
-       # Determine how many patients end up in which state
-       if (cycle == 1){
-         patientsInStates <- startStates
-       } else {
-         patientsInStates <- patientsInStatesAfterCalc
-       }
-       patientsInStatesAfterCalc <- transitionMatrix %*% patientsInStates
-       
-       # Determine the effects from each state
-       effects <- apply(measuredEffect, 1, function(x) x / (1 + discountBenefits) ^ cycle )        
-       measurements[iteration, alternative, 1] <- measurements[iteration, alternative, 1] + sum(patientsInStatesAfterCalc * effects)
-       
-       # Determine the costs from each state
-       costs <- apply(stateCosts, 1, function(x) x / ( 1 + discountCosts ) ^ cycle )    
-       measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(patientsInStatesAfterCalc * costs[alternative,])
-       
-     }
-   }
- }
- 
+ # Simulation function, 4 approaches (deterministic, with or without relative effect & probabilistic with or without relative effect)
+
+switch(simulationApproach, 
+        Deterministic={
+          # TODO
+        },
+        DeterministicRelativeEffect={
+          # TODO
+        },
+        Probabilistic={
+          
+          for (iteration in 1:iterations){
+            
+            # Start with empty transition matrix
+            P <- array(,dim=c(numberOfStates, numberOfStates, 0))
+            # Fill transition matrix for this iteration
+            P <- sampleDirichlet(numberOfStates,transitionInput,amountOfAlternatives,P)
+            
+            # Within this iteration, we calculate each alternative
+            for (alternative in 1:amountOfAlternatives){
+              
+              transitionMatrix <- t(P[,,alternative])
+              
+              # Before we start, assign costs related to each alternative
+              measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + ( alternativeCosts[,alternative] * sum(startStates) )
+              
+              for (cycle in 1:cycles){
+                
+                # Determine how many patients end up in which state
+                if (cycle == 1){
+                  patientsInStates <- startStates
+                } else {
+                  patientsInStates <- patientsInStatesAfterCalc
+                }
+                patientsInStatesAfterCalc <- transitionMatrix %*% patientsInStates
+                
+                # Determine the effects from each state
+                effects <- apply(measuredEffect, 1, function(x) x / (1 + discountBenefits) ^ cycle )        
+                measurements[iteration, alternative, 1] <- measurements[iteration, alternative, 1] + sum(patientsInStatesAfterCalc * effects)
+                
+                # Determine the costs from each state
+                costs <- apply(stateCosts, 1, function(x) x / ( 1 + discountCosts ) ^ cycle )    
+                measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(patientsInStatesAfterCalc * costs[alternative,])
+                
+              }
+            }
+          }
+        },
+        ProbabilisticRelativeEffect={
+          # TODO
+          
+          for (iteration in 1:iterations){
+            
+            # Start with empty transition matrix
+            P <- array(,dim=c(numberOfStates, numberOfStates, 0))
+            
+            # Fill baseline transition matrix for this iteration
+            P <- sampleDirichlet(numberOfStates,transitionInput,1,P)
+            
+            # Once we know the baseline, we apply the relative effect to obtain the transition rates for other alternatives
+            P <- calculateRelativeEffect(numberOfStates,transitionInput,amountOfAlternatives,P)
+            
+            # Within this iteration, we calculate each alternative
+            for (alternative in 1:amountOfAlternatives){
+              
+              transitionMatrix <- t(P[,,alternative])
+              
+              # Before we start, assign costs related to each alternative
+              measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + ( alternativeCosts[,alternative] * sum(startStates) )
+              
+              for (cycle in 1:cycles){
+                
+                # Determine how many patients end up in which state
+                if (cycle == 1){
+                  patientsInStates <- startStates
+                } else {
+                  patientsInStates <- patientsInStatesAfterCalc
+                }
+                patientsInStatesAfterCalc <- transitionMatrix %*% patientsInStates
+                
+                # Determine the effects from each state
+                effects <- apply(measuredEffect, 1, function(x) x / (1 + discountBenefits) ^ cycle )        
+                measurements[iteration, alternative, 1] <- measurements[iteration, alternative, 1] + sum(patientsInStatesAfterCalc * effects)
+                
+                # Determine the costs from each state
+                costs <- apply(stateCosts, 1, function(x) x / ( 1 + discountCosts ) ^ cycle )    
+                measurements[iteration, alternative, 2] <- measurements[iteration, alternative, 2] + sum(patientsInStatesAfterCalc * costs[alternative,])
+                
+              }
+            }
+          }
+        }
+       )
+
  # To construct a graph we first rescale all values between 0 and 1, this is the input for the SMAA function
  scales <- scaleRange(measurements,amountOfAlternatives,criteria)
  
@@ -103,15 +162,13 @@ cea <-function(input){
  # define misc values to get rank acceptabilities
  lambda <- 0
  index <- 1
- 
- # worst possible outcome, max costs
- wtp.max <- max(alternativeCosts) + max(stateCosts) * cycles 
- wtp.step <- wtp.max / 100
- steps <- wtp.max/wtp.step + 1
+ wtp.step <- maxWillingnessToPay / 100
+ steps <- maxWillingnessToPay/wtp.step + 1
  lambda.vec <- rep(0,steps)
  cost.effect.accep <- c()
+ lambda <- minWillingnessToPay
  
- while (lambda<=wtp.max) {
+ while (lambda<=maxWillingnessToPay) {
    # Calculate the current weights, according to (Postmus et al, 2013)
    # the current weights are returned in a N * n matrix, to be used in smaa.value see smaa package
    cur.weight <- weightCon(lambda,scales)
@@ -174,7 +231,7 @@ getSMAA <- function(scales, alternatives, criteria, iterations,measurements){
 }
 
 # generate transition matrix based on dirichlet distribution
-distribution.dirichlet <- function(numberOfStates,transitionArray,alternatives,P){
+sampleDirichlet <- function(numberOfStates,transitionArray,alternatives,P){
  
  for ( a in 1 : alternatives ){
    X <- matrix(, ncol=numberOfStates, nrow = 0, )
@@ -218,6 +275,34 @@ distribution.dirichlet <- function(numberOfStates,transitionArray,alternatives,P
    P <- abind( P, X, along=3 )
  }
  P
+}
+
+# generate transition probabilities based on a relative effect found on the baseline
+calculateRelativeEffect <- function(numberOfStates,transitionArray,alternatives,P){
+  
+  # we know the first alternative, so we are intrested in the others which have a relative effect
+  for ( alternative in 2 : alternatives ){
+    X <- matrix(, ncol=numberOfStates, nrow = numberOfStates, )
+    
+    for (fromState in 1:numberOfStates){
+      
+      sumOfTransitionsFromThisState <- 0
+      
+      for (toState in 1:numberOfStates){
+        
+        if (fromState != toState){
+          X[fromState, toState] <- P[fromState, toState , 1 ] * transitionArray[fromState, toState , alternative ]
+          sumOfTransitionsFromThisState <- sumOfTransitionsFromThisState + X[fromState, toState]
+        }
+      }
+      
+      X[fromState,fromState] <- 1 - sumOfTransitionsFromThisState
+    }
+    
+    # Fill the transition matrix P
+    P <- abind( P, X, along=3 )
+  }
+  P
 }
 
 # criteria = measured effect and cost
