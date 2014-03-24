@@ -32,6 +32,16 @@ define(['angular', 'lib/patavi', 'underscore'], function(angular, patavi, _) {
     
     $scope.currentStep = taskDefinition.clean(currentScenario.state);
     
+    $scope.simulationApproach = $scope.simulationApproaches;
+    
+    $scope.simulationApproaches = [
+                                    // TODO
+                                    //{name:'Deterministic', approach:'Deterministic', value: 'Deterministic'},
+                                    //{name:'Deterministic, relative effect', approach:'Deterministic', value: 'DeterministicRelativeEffect'},
+                                    {name:'Probabilistic', approach:'Probabilistic', value: 'Probabilistic'},
+                                    {name:'Probabilistic, relative effect', approach:'Probabilistic', value: 'ProbabilisticRelativeEffect'}
+                                  ];
+    
     $scope.disable = function(value) {
       if ( value == null ) {
         return true;

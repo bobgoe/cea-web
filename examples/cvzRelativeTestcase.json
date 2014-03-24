@@ -34,7 +34,7 @@
       "title": "Lifestyle intervention",
       "interventioncost": 400,
       "stateCosts": [300,1805,0],
-      "transition": [[0,0.8,1],[null,0,1],[null,null,0]]
+      "transition": [[1,0.8,1],[null,1,1],[null,null,1]]
     }
   ],
   "discountBenefits": 0.015,

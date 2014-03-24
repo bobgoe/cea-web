@@ -1,3 +1,18 @@
+continuousTransition <- -log(1 - 0.75)
+
+print(continuousTransition)
+
+adjustedContinuousTransition <- continuousTransition * 0.8
+
+print(adjustedContinuousTransition)
+
+newTransition <- 1 - exp(-adjustedContinuousTransition)
+
+print(newTransition)
+
+
+
+
 # Require: smaa, DirichletReg, abind, RJSONIO
 require ('DirichletReg')
 require ('abind')

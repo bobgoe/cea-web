@@ -77,7 +77,7 @@ switch(simulationApproach,
             # Fill transition matrix for this iteration
             P <- sampleDirichlet(numberOfStates,transitionInput,amountOfAlternatives,P)
             
-            # Within this iteration, we calculate each alternative
+            # For this given transition matrix, we calculate each alternative
             for (alternative in 1:amountOfAlternatives){
               
               transitionMatrix <- t(P[,,alternative])
@@ -108,7 +108,6 @@ switch(simulationApproach,
           }
         },
         ProbabilisticRelativeEffect={
-          # TODO
           
           for (iteration in 1:iterations){
             
@@ -121,7 +120,7 @@ switch(simulationApproach,
             # Once we know the baseline, we apply the relative effect to obtain the transition rates for other alternatives
             P <- calculateRelativeEffect(numberOfStates,transitionInput,amountOfAlternatives,P)
             
-            # Within this iteration, we calculate each alternative
+            # For this given transition matrix, we calculate each alternative
             for (alternative in 1:amountOfAlternatives){
               
               transitionMatrix <- t(P[,,alternative])
@@ -291,11 +290,22 @@ calculateRelativeEffect <- function(numberOfStates,transitionArray,alternatives,
       for (toState in 1:numberOfStates){
         
         if (fromState != toState){
-          X[fromState, toState] <- P[fromState, toState , 1 ] * transitionArray[fromState, toState , alternative ]
+          # We calculate the adjusted risk based on Postmus et al 2011 ( DOI: 10.1002/sim.5434 )
+          # First take the transition from the baseline, which is now reported on a discrete scale (yearly cycles) and adjust to coninuous cycle 
+          continuousTransition <- -log(1 - P[fromState, toState , 1 ])
+          
+          # Adjust the ratio on a continuous scale with the reported hazard ratio
+          adjustedContinuousTransition <- continuousTransition * transitionArray[fromState, toState , alternative ]
+          
+          # Rescale the transition reported on a continuous to a discrete scale
+          X[fromState, toState] <- 1 - exp(-adjustedContinuousTransition)
+          
+          # Keep track of the sum of adjusted transition rates for this alternative, the reflexive transition is based on 1 - the sum
           sumOfTransitionsFromThisState <- sumOfTransitionsFromThisState + X[fromState, toState]
         }
       }
       
+      # We make the assumption that the reflexive transition is always 1 minus all other depart rates
       X[fromState,fromState] <- 1 - sumOfTransitionsFromThisState
     }
     
