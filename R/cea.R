@@ -1,5 +1,5 @@
-# Require: smaa, DirichletReg, abind, RJSONIO
-require ('DirichletReg')
+# Require: smaa, mc2d, abind, RJSONIO
+require ('mc2d')
 require ('abind')
 
 test <- function(params){
@@ -257,12 +257,12 @@ sampleDirichlet <- function(numberOfStates,transitionArray,alternatives,P){
          iterator <- iterator + 1
        }
      }
-     dirichlet <- rdirichlet(1, dirichletInput)
+     sample <- rdirichlet(1, dirichletInput)
      rowToAdd <- matrix( , nrow = 1, ncol = numberOfStates, )
      iterator2 <- 1
      for( i in 1 : numberOfStates ){
        if( is.na(nextRow[1,i]) ){
-         rowToAdd[1,i] <- dirichlet[1,iterator2]
+         rowToAdd[1,i] <- sample[1,iterator2]
          iterator2 <- iterator2 + 1
        } else{
          rowToAdd[1,i] <- 0 
