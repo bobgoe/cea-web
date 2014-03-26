@@ -58,8 +58,6 @@ define(['angular', 'lib/patavi', 'underscore'], function(angular, patavi, _) {
       return false;
     }
     
-    console.log(scenario.state.problem);
-    
     $scope.save = function(currentState) {
       var state = angular.copy(currentState);
       _.each(state.problem.alternatives, function(alternative) {
