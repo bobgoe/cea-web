@@ -1,0 +1,19 @@
+<div>
+  <h3>Measured effects</h3>
+  <p>When modeling disease progression we obtain results based on how long a patient resides in a state. 
+  Right now these values are only reported as numerical values that can represent an effect (e.g. QALY).</p>
+  <ul class="no-bullet">     
+    <table class="table table-striped table-condensed table-hover" style="font-size: 20px;">
+      <thead>
+        <tr> <th></th><th> Measured Effect </th> </tr>
+      </thead>                       
+      <tbody>    
+        <tr ng-repeat="(key, state) in currentStep.problem.states" >  
+          <th> {{state.title}} </th>
+          <td> <input type="number" ng-model="state.measuredEffect"> </td>
+        </tr>
+      </tbody>                             
+    </table>  
+  </ul>
+  <button class="small success" ng-click="save(currentStep)">Save</button>
+</div>

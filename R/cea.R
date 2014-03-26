@@ -51,7 +51,7 @@ cea <-function(input){
  discountCosts <- input$discountCosts
  minWillingnessToPay <- input$minWillingnessToPay
  maxWillingnessToPay <- input$maxWillingnessToPay
- simulationApproach <- input$simulationApproach
+ simulationApproach <- input$simulationApproach[['value']]
  
  ########## End of inputs from website ##########
  

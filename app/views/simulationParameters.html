@@ -1,6 +1,7 @@
 <div>
   <h3>Simulation Parameters</h3>
-  <p>Patients start in several stages</p>
+  <p>This page contains the various other simulation parameters. We start by representing how many patients we simulate and in which state
+  they start.</p>
   <ul class="no-bullet">     
     <table class="table table-striped table-condensed table-hover" style="font-size: 20px;">
       <thead>
@@ -14,26 +15,49 @@
       </tbody>                             
     </table>  
   </ul>
-  <p>Time Horizon, discounting effects and Willingness-to-pay</p>
+  <p>Next the Time horizon for which we simulate needs to be determined, this is reported in yearly cycles because we use a discrete method</p>
+  <ul class="no-bullet">     
+    <table class="table table-striped table-condensed table-hover" style="font-size: 20px;">                     
+      <tbody>    
+        <tr>
+          <th> Yearly cycles </th>
+          <td> <input type="number" ng-model="currentStep.problem.cycles"> </td>
+        </tr>
+      </tbody>                             
+    </table>  
+  </ul>
+  <p>When using a probabilistic approach for the transition probabilities we simulate the model a large amount of times and take the
+  mean values as an approximation to the real distribution.</p>
+  <ul class="no-bullet">     
+    <table class="table table-striped table-condensed table-hover" style="font-size: 20px;">                     
+      <tbody>    
+        <tr>
+          <th> Iterations </th>
+          <td> <input type="number" ng-model="currentStep.problem.iterations"> </td>
+        </tr>
+      </tbody>                             
+    </table>  
+  </ul>
+  <p>During simulation the achieved effects and costs need to be discounted for future returns</p>
   <ul class="no-bullet">     
     <table class="table table-striped table-condensed table-hover" style="font-size: 20px;">                     
       <tbody>    
         <tr>  
-          <th> discountBenefits </th>
+          <th> Discount rate for benefits </th>
           <td> <input type="number" ng-model="currentStep.problem.discountBenefits"> </td>
         </tr>
         <tr>
-          <th> discountCosts </th>
+          <th> Discount rate for costs </th>
           <td> <input type="number" ng-model="currentStep.problem.discountCosts"> </td>
         </tr>
-        <tr>
-          <th> iterations </th>
-          <td> <input type="number" ng-model="currentStep.problem.iterations"> </td>
-        </tr>
-        <tr>
-          <th> cycles </th>
-          <td> <input type="number" ng-model="currentStep.problem.cycles"> </td>
-        </tr>
+      </tbody>                             
+    </table>  
+  </ul>
+  <p>Last the minimum and maximum Willingness-to-pay need to be reported, they represent respectively the lower and upper bound
+  of the Cost-Effectiveness Acceptability Curve</p>
+  <ul class="no-bullet">     
+    <table class="table table-striped table-condensed table-hover" style="font-size: 20px;">                     
+      <tbody>    
         <tr>
           <th> Minimum Willingness-to-pay </th>
           <td> <input type="number" ng-model="currentStep.problem.minWillingnessToPay"> </td>

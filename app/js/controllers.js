@@ -6,8 +6,9 @@ define(function(require) {
           .controller('WorkspaceController', require('controllers/workspace'))
           .controller('OverviewController', require('controllers/overview'))
           .controller('ResultsController', require('controllers/results'))
-          .controller('DiseaseStateModelController', require('controllers/diseaseStateModel'))
+          .controller('TransitionProbabilitiesController', require('controllers/transitionProbabilities'))
           .controller('AccountCostsController', require('controllers/accountCosts'))
-          .controller('GraphCreatorController', require('controllers/graphCreator'))
+          .controller('AccountEffectsController', require('controllers/accountEffects'))
+          .controller('DiseaseStatesController', require('controllers/diseaseStates'))
           .controller('SimulationParametersController', require('controllers/simulationParameters'));
 });

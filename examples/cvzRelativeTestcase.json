@@ -43,5 +43,11 @@
   "cycles": 20,
   "minWillingnessToPay": 0,
   "maxWillingnessToPay": 20000,
-  "simulationApproach": "ProbabilisticRelativeEffect"
+  "simulationApproach": 
+	{
+	  "id": 3,
+	  "name":"Probabilistic, relative effect", 
+	  "approach":"Probabilistic", 
+	  "value": "ProbabilisticRelativeEffect"
+	}
 }

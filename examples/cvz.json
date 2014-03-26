@@ -43,5 +43,11 @@
   "cycles": 20,
   "minWillingnessToPay": 0,
   "maxWillingnessToPay": 20000,
-  "simulationApproach": "Probabilistic"
+    "simulationApproach": 
+	{
+	  "id": 2,
+	  "name":"Probabilistic", 
+	  "approach":"Probabilistic", 
+	  "value": "Probabilistic"
+	}
 }
