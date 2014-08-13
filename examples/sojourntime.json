@@ -1,0 +1,173 @@
+{
+  "title": "Douwe Heart Failure Example",
+  "iterations": 100,
+  "timeHorizon": 3650,
+  "wtp.max": 100000,
+  "wtp.min": 0,
+  "patient": {
+    "startingState": 0,
+    "covariates": {
+      "afib": 0,
+      "age": 70,
+      "dbp": 68,
+      "diabetes": 0,
+      "egfr": 55,
+      "lvef": 34,
+      "mi": 0,
+      "na": 139,
+      "peripheral": 0,
+      "previousAdm": 0,
+      "probnp": 2500,
+      "sbp": 118,
+      "sex": 0,
+      "stroke": 0
+    },
+    "covariateExpr": {
+      "probnplog": {
+        "lhs": "probnp",
+        "rhs": null,
+        "operator": "log"
+      },
+      "bloodpressure": {
+        "lhs": "sbp",
+        "rhs": "dbp",
+        "operator": "minus"
+      }
+    }
+  },
+  "states": [
+    {
+      "id": 0,
+      "title": "Discharged alive from hospital",
+      "absorbingState": "FALSE",
+      "sojournTimeRate": {
+    	  "distribution": "Weibull",
+        "values": {
+          "lambda": 0.816,
+          "rho": 0.719,
+      	  "covariates": {
+            "afib": 0.172,
+            "bloodpressure": 0.005,
+            "dbp": -0.015,
+            "diabetes": 0.222,
+            "egfr": -0.013,
+            "mi": 0.296,
+            "na": -0.036,
+            "peripheral": 0.177,
+            "previousAdm": 0.648,
+            "probnplog": 0.073,
+            "sex": 0.287,
+            "stroke": 0.275
+          },
+          "treatments": {
+            "0": null,
+            "1": 0.95,
+            "2": 0.8
+          }
+        }
+    	},
+      "departureRates": [
+        {
+          "to": 1,
+          "lastState": "TRUE",
+          "distribution": null,
+          "values": null
+        },
+        {
+          "to": 2,
+          "lastState": "FALSE",
+          "distribution": "Logistic",
+          "values": {
+            "alpha": -4.206,
+            "covariates": {
+              "age": 0.047,
+              "bloodpressure": -0.018,
+              "previousAdm": -0.362,
+              "probnplog": 0.186,
+              "sex": -0.534
+            },
+            "treatments": null
+          }
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "title": "Hospitalization because of heart failure",
+      "absorbingState": "FALSE",
+      "sojournTimeRate": {
+        "distribution": "LogLogistic",
+        "values": {
+          "lambda": -6.298,
+          "beta": 1.931,
+      	  "covariates": {
+            "age": 0.014,
+            "egfr": 0.012,
+            "lvef": 0.014,
+            "peripheral": -0.374,
+            "stroke": 0.483
+          },
+          "treatments": null
+        }
+    	},
+      "departureRates": [
+        {
+          "to": 0,
+          "lastState": "TRUE",
+          "distribution": null,
+          "values": null
+        },
+        {
+          "to": 2,
+          "lastState": "FALSE",
+          "distribution": "Logistic",
+          "values": {
+            "alpha": -3.092,
+            "covariates": {
+              "dbp": -0.025,
+              "diabetes": 0.649,
+              "probnplog": 0.348
+            },
+            "treatments": null
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Dead",
+      "absorbingState": "TRUE",
+      "sojournTimeRate": null,
+      "departureRates": null
+    }
+  ],
+  "alternatives": [
+    {
+      "id": 0,
+      "title": "No intervention",
+      "costs": {
+        "0": 0.86,
+        "1": 769,
+        "2": 0
+      }
+    },
+    {
+      "id": 1,
+      "title": "Basic intervention",
+      "costs": {
+        "0": 1.56,
+        "1": 769,
+        "2": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "Heavy intervention",
+      "costs": {
+        "0": 2.34,
+        "1": 769,
+        "2": 0
+      }
+    }
+  ]
+}
