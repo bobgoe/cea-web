@@ -3,6 +3,8 @@ js/test.js
 *.swp
 /tags
 /R/service.R
+.Rdata
+.Rhistory
 /js/patavi.js
 *~
 \#*\#
