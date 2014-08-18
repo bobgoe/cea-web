@@ -1,7 +1,7 @@
 # debug, local set
-#require('RJSONIO')
-#require('smaa')
-#data <- fromJSON('ceacontinuous.json')
+require('RJSONIO')
+require('smaa')
+data <- fromJSON('../examples/sojourntime.json')
 
 # return a 2 * n matrix where the first collumn holds the id of the state and the second collumn the assosciated transition rate
 transition.rate <- function(state, covariateCounts, alternative) {
@@ -27,7 +27,8 @@ transition.rate <- function(state, covariateCounts, alternative) {
 }
 
 # returns which state a patient travels to after sojourn time has been determined
-next.state <- function(state, covariateCounts, uniform, alternative) {
+next.state <- function(state, covariateCounts, alternative) {
+  uniform <- runif(1)
   rates <- transition.rate(state, covariateCounts, alternative)
   rowIndex <- which(uniform < rates[,2])[1]
   currentStateId <- rates[rowIndex,1] + 1
@@ -42,15 +43,15 @@ result <- function(alternative, iteration, results, state, sojournTime) {
 }
 
 # return the time a patient has spent in a state (sojourn time)
-sojourn.time <- function(covariateCounts, state, timeSpent, weibullRand, loglogisticRand, alternative) {
+sojourn.time <- function(covariateCounts, state, timeSpent, alternative) {
   switch(state$sojournTimeRate$distribution, 
          Weibull={
            covariates <- covariates(state$sojournTimeRate$values$covariates, covariateCounts, state$sojournTimeRate$values$treatments, alternative)
-           sojournTime <- weibull(covariates, state, weibullRand)
+           sojournTime <- weibull(covariates, state)
          },
          LogLogistic={
            covariates <- covariates(state$sojournTimeRate$values$covariates, covariateCounts, state$sojournTimeRate$values$treatments, alternative)
-           sojournTime <- log.logistic(state, covariates, loglogisticRand)
+           sojournTime <- log.logistic(state, covariates)
          }
   )
   
@@ -68,7 +69,8 @@ state <- function(stateId) {
 }
 
 # return sojourn time when a Weibull distribution is used
-weibull <- function(covariates, state, uniform) {
+weibull <- function(covariates, state) {
+  uniform <- runif(1)
   rho <- state$sojournTimeRate$values$rho
   lambda <- state$sojournTimeRate$values$lambda
   lambda <- exp(lambda + covariates)
@@ -76,7 +78,8 @@ weibull <- function(covariates, state, uniform) {
 }
 
 # return sojourn time when a Log Logistic distribution is used
-log.logistic <- function(state, covariates, uniform) {
+log.logistic <- function(state, covariates) {
+  uniform <- runif(1)
   beta <- state$sojournTimeRate$values$beta
   lambda <- state$sojournTimeRate$values$lambda
   lambda <- exp(lambda + covariates)
@@ -146,9 +149,7 @@ simulation.results <- function(data) {
   for (iteration in 1:data$iterations) {
     
     # random numbers should be the same for each patient
-    weibullRand <- runif(1)
-    loglogisticRand <- runif(1)
-    stateRand <- runif(1)
+    set.seed(iteration)
     
     for (alternative in 1:length(data$alternatives)) {
       
@@ -156,10 +157,10 @@ simulation.results <- function(data) {
       timeSpent <- 0
       
       while (state$absorbingState == FALSE && timeSpent < data$timeHorizon){
-        sojournTime <- sojourn.time(covariateCounts, state, timeSpent, weibullRand, loglogisticRand, alternative)
+        sojournTime <- sojourn.time(covariateCounts, state, timeSpent, alternative)
         timeSpent <- timeSpent + sojournTime
         results <- result(alternative, iteration, results, state, sojournTime)
-        state <- next.state(state, covariateCounts, stateRand, alternative)
+        state <- next.state(state, covariateCounts, alternative)
       }  
     }
   }

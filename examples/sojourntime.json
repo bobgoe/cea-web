@@ -1,6 +1,6 @@
 {
   "title": "Douwe Heart Failure Example",
-  "iterations": 100,
+  "iterations": 10000,
   "timeHorizon": 3650,
   "wtp.max": 100000,
   "wtp.min": 0,
