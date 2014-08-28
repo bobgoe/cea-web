@@ -1,5 +1,5 @@
 {
-  "title": "Douwe Heart Failure Example",
+  "title": "COACH risk engine (Postmus et al, 2012)",
   "iterations": 10,
   "timeHorizon": 3650,
   "wtp.max": 100000,
@@ -81,6 +81,7 @@
     "covariateExpr": [
       {
         "name": "probnplog",
+        "remark": "placeholder",
         "input": {
           "lhs": "probnp",
           "rhs": null,
@@ -89,6 +90,7 @@
       },
       {
         "name": "bloodpressure",
+        "remark": "placeholder",
         "input": {
           "lhs": "sbp",
           "rhs": "dbp",
@@ -231,5 +233,10 @@
         "2": 0
       }
     }
-  ]
+  ],
+  "Modeloverview": {
+    "patientCharacteristics": "TRUE",
+    "stateTransition Model": "TRUE",
+    "trialNetwork": "TRUE"
+  }
 }
