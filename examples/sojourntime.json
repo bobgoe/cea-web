@@ -235,8 +235,8 @@
     }
   ],
   "Modeloverview": {
-    "patientCharacteristics": "TRUE",
-    "stateTransition Model": "TRUE",
-    "trialNetwork": "TRUE"
+    "patientCharacteristics": "FALSE",
+    "stateTransition Model": "FALSE",
+    "trialNetwork": "FALSE"
   }
 }

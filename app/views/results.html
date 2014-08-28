@@ -12,24 +12,36 @@
     <div ng-show="currentStep.problem.Modeloverview.patientCharacteristics">
       Patient Characteristic values
       <table class="table table-striped table-condensed", width='800'>
-      <tbody>
-       <tr ng-repeat="(key,covariate) in currentStep.problem.patient.covariates">
-          <td>
-            <div class="pull-left">
-              <strong>{{covariate.name}}</strong><br />
-              <small>{{covariate.remark}}</small>
-            </div>
-          </td>
-        </tr>
-        <tr ng-repeat="(key,covariate) in currentStep.problem.patient.covariateExpr">
-          <td>
-            <div class="pull-left">
-              <strong>{{covariate.name}}</strong><br />
-              <small>{{covariate.remark}}</small>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+        <tbody>
+         <tr ng-repeat="(key,covariate) in currentStep.problem.patient.covariates">
+            <td>
+              <div class="pull-left">
+                <strong>{{covariate.name}}</strong><br />
+                <small>{{covariate.remark}}</small>
+              </div>
+            </td>
+          </tr>
+          <tr ng-repeat="(key,covariate) in currentStep.problem.patient.covariateExpr">
+            <td>
+              <div class="pull-left">
+                <strong>{{covariate.name}}</strong><br />
+                <small>{{covariate.remark}}</small>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div><br/>
+    <form>
+      <input type="checkbox" ng-model="currentStep.problem.Modeloverview.stateTransition" /> State Transition Model <br/>
+    </form>
+    <div ng-show="currentStep.problem.Modeloverview.stateTransition">
+      placeholder
+    </div><br/>
+    <form>
+      <input type="checkbox" ng-model="currentStep.problem.Modeloverview.trialNetwork" /> Trial Network
+    </form>
+    <div ng-show="currentStep.problem.Modeloverview.trialNetwork">
+      placeholder
+    </div>
 </div>

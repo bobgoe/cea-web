@@ -3,7 +3,7 @@ require.config({
   paths: {
     'jQuery': '//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min',
     'underscore': '//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min',
-    'angular': '//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular',
+    'angular': '//ajax.googleapis.com/ajax/libs/angularjs/1.2.20/angular',
     'angular-resource': '//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular-resource',
     'angular-ui-router': '//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.0/angular-ui-router.min',
     'NProgress': '//cdnjs.cloudflare.com/ajax/libs/nprogress/0.1.2/nprogress.min',
