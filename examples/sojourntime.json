@@ -1,39 +1,101 @@
 {
   "title": "Douwe Heart Failure Example",
-  "iterations": 10000,
+  "iterations": 10,
   "timeHorizon": 3650,
   "wtp.max": 100000,
   "wtp.min": 0,
   "patient": {
     "startingState": 0,
-    "covariates": {
-      "afib": 0,
-      "age": 70,
-      "dbp": 68,
-      "diabetes": 0,
-      "egfr": 55,
-      "lvef": 34,
-      "mi": 0,
-      "na": 139,
-      "peripheral": 0,
-      "previousAdm": 0,
-      "probnp": 2500,
-      "sbp": 118,
-      "sex": 0,
-      "stroke": 0
-    },
-    "covariateExpr": {
-      "probnplog": {
-        "lhs": "probnp",
-        "rhs": null,
-        "operator": "log"
+    "covariates": [
+      {
+       "name": "afib",
+       "value": 0,
+       "remark": "placeholder"
       },
-      "bloodpressure": {
-        "lhs": "sbp",
-        "rhs": "dbp",
-        "operator": "minus"
+      {
+       "name": "age",
+       "value": 70,
+       "remark": "placeholder"
+      },
+      {
+       "name": "dbp",
+       "value": 68,
+       "remark": "placeholder"
+      },
+      {
+       "name": "diabetes",
+       "value": 0,
+       "remark": "placeholder"
+      },
+      {
+       "name": "egfr",
+       "value": 55,
+       "remark": "placeholder"
+      },
+      {
+       "name": "lvef",
+       "value": 34,
+       "remark": "placeholder"
+      },
+      {
+       "name": "mi",
+       "value": 0,
+       "remark": "placeholder"
+      },
+      {
+       "name": "na",
+       "value": 139,
+       "remark": "placeholder"
+      },
+      {
+       "name": "peripheral",
+       "value": 0,
+       "remark": "placeholder"
+      },
+      {
+       "name": "previousAdm",
+       "value": 0,
+       "remark": "placeholder"
+      },
+      {
+       "name": "probnp",
+       "value": 2500,
+       "remark": "placeholder"
+      },
+      {
+       "name": "sbp",
+       "value": 118,
+       "remark": "placeholder"
+      },
+      {
+       "name": "sex",
+       "value": 0,
+       "remark": "placeholder"
+      },
+      {
+       "name": "stroke",
+       "value": 0,
+       "remark": "placeholder"
       }
-    }
+    ],
+    "covariateExpr": [
+      {
+        "name": "probnplog",
+        "input": {
+          "lhs": "probnp",
+          "rhs": null,
+          "operator": "log"
+        }
+      },
+      {
+        "name": "bloodpressure",
+        "input": {
+          "lhs": "sbp",
+          "rhs": "dbp",
+          "operator": "minus"
+        }
+      }
+    ]
   },
   "states": [
     {

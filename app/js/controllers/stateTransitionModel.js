@@ -7,6 +7,8 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
     var scenario = angular.copy(currentScenario);
     var states = _.pluck(scenario.state.problem.states, "title"); 
 
+    console.log(scenario);
+    
         // set up SVG for D3
         var width  = 550,
             height = 440,

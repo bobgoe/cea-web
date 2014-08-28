@@ -5,6 +5,8 @@ define(['angular', 'lib/patavi', 'underscore'], function(angular, patavi, _) {
     var criteria;
     var scenario = angular.copy(currentScenario);
     
+    console.log(scenario);
+    
     $scope.currentStep = taskDefinition.clean(currentScenario.state);
     
     $scope.save = function(currentState) {

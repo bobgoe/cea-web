@@ -1,7 +1,9 @@
-# debug, local set
-require('RJSONIO')
-require('smaa')
-data <- fromJSON('../examples/sojourntime.json')
+# main body
+sojourntime <- function(data) {
+  results <- simulation.results(data)
+  ceac <- ceac(data, results)
+  ceac
+}
 
 # return a 2 * n matrix where the first collumn holds the id of the state and the second collumn the assosciated transition rate
 transition.rate <- function(state, covariateCounts, alternative) {
@@ -27,7 +29,7 @@ transition.rate <- function(state, covariateCounts, alternative) {
 }
 
 # returns which state a patient travels to after sojourn time has been determined
-next.state <- function(state, covariateCounts, alternative) {
+next.state <- function(state, covariateCounts, alternative, data) {
   uniform <- runif(1)
   rates <- transition.rate(state, covariateCounts, alternative)
   rowIndex <- which(uniform < rates[,2])[1]
@@ -36,14 +38,14 @@ next.state <- function(state, covariateCounts, alternative) {
 }
 
 # return results based on the time a patient spent in a state (sojourn time)
-result <- function(alternative, iteration, results, state, sojournTime) {
+result <- function(alternative, iteration, results, state, sojournTime, data) {
   results[iteration, alternative, 1] <- results[iteration, alternative, 1] + sojournTime
   results[iteration, alternative, 2] <- results[iteration, alternative, 2] + ( unname(data$alternatives[[alternative]]$costs[[state$id+1]]) * sojournTime )
   results
 }
 
 # return the time a patient has spent in a state (sojourn time)
-sojourn.time <- function(covariateCounts, state, timeSpent, alternative) {
+sojourn.time <- function(covariateCounts, state, timeSpent, alternative, timeHorizon) {
   switch(state$sojournTimeRate$distribution, 
          Weibull={
            covariates <- covariates(state$sojournTimeRate$values$covariates, covariateCounts, state$sojournTimeRate$values$treatments, alternative)
@@ -56,15 +58,15 @@ sojourn.time <- function(covariateCounts, state, timeSpent, alternative) {
   )
   
   # adhere to time horizon
-  if ( ( sojournTime + timeSpent ) > data$timeHorizon ) {
-    sojournTime <- data$timeHorizon - timeSpent
+  if ( ( sojournTime + timeSpent ) > timeHorizon ) {
+    sojournTime <- timeHorizon - timeSpent
   }
   
   sojournTime
 }
 
 # get all the characteristics for the current state
-state <- function(stateId) {
+state <- function(data, stateId) {
   state <- data$state[[stateId + 1]]
 }
 
@@ -95,9 +97,16 @@ logistic <- function(alpha, covariates) {
 
 # retrieve all patient characteristics that are based on a function
 covariate.counts <- function(data) {
-  covariateCounts <- as.matrix(data$patient$covariates)
+
+  covariateCounts <- matrix(, nrow=0, ncol=1, byrow=T)
+  
+  for (i in 1:length(data$patient$covariates)){
+    covariateCounts <- rbind(covariateCounts, data$patient$covariates[[i]]$value)
+    rownames(covariateCounts)[i] <- data$patient$covariates[[i]]$name
+  }
+  
   for (i in 1:length(data$patient$covariateExpr)){
-    thiscovar <- (data$patient$covariateExpr[[i]])
+    thiscovar <- (data$patient$covariateExpr[[i]]$input)
     lhsvalue <- thiscovar[['lhs']]
     lhs <- unname(covariateCounts[lhsvalue,])
     rhsvalue <- thiscovar[['rhs']]
@@ -113,7 +122,7 @@ covariate.counts <- function(data) {
              covariateCounts <- rbind(covariateCounts, lhs-rhs)
            }
     )
-    rownames(covariateCounts)[covlength] <- names(data$patient$covariateExpr[i])
+    rownames(covariateCounts)[covlength] <- data$patient$covariateExpr[[i]]$name
   }
   covariateCounts
 }
@@ -153,14 +162,14 @@ simulation.results <- function(data) {
     
     for (alternative in 1:length(data$alternatives)) {
       
-      state <- state(data$patient$startingState)
+      state <- state(data, data$patient$startingState)
       timeSpent <- 0
       
       while (state$absorbingState == FALSE && timeSpent < data$timeHorizon){
-        sojournTime <- sojourn.time(covariateCounts, state, timeSpent, alternative)
+        sojournTime <- sojourn.time(covariateCounts, state, timeSpent, alternative, data$timeHorizon)
         timeSpent <- timeSpent + sojournTime
-        results <- result(alternative, iteration, results, state, sojournTime)
-        state <- next.state(state, covariateCounts, alternative)
+        results <- result(alternative, iteration, results, state, sojournTime, data)
+        state <- next.state(state, covariateCounts, alternative, data)
       }  
     }
   }
@@ -248,14 +257,3 @@ ceac <- function(data, results) {
   }
   ceac
 }
-
-# main body
-run <- function(data) {
-  results <- simulation.results(data)
-  print(summary(results[,,1]))
-  print(summary(results[,,2]))
-  ceac <- ceac(data, results)
-  print(ceac)
-}
-
-run(data)

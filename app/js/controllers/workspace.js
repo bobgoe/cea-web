@@ -5,7 +5,6 @@ define(['angular', 'underscore', 'config'], function(angular,  _, Config) {
     $scope.workspace = currentWorkspace;
     $scope.scenario = currentScenario;
     $scope.createPath = _.partial(Config.createPath, currentWorkspace.id);
-
     $scope.scenarios = currentWorkspace.query();
 
     var resultsAccessible = function() {

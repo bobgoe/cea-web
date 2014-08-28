@@ -1,0 +1,22 @@
+<div>
+  <h3>Patient characteristics</h3>
+  <p>Placeholder, patient characteristics explanation</p>
+    <table class="table table-striped table-condensed", width='800'>
+    <tbody>
+     <tr ng-repeat="(key,covariate) in currentStep.problem.patient.covariates">
+        <td>
+          <div class="pull-left">
+            <strong>{{covariate.name}}</strong><br />
+            <small>{{covariate.remark}}</small>
+          </div>
+          <div class="pull-right">
+            <button type="button" class="btn btn-danger pull-right" ng-click="deleteSong($index)">
+              <i class="fa fa-trash-o"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <button class="small success" ng-click="save(currentStep)">Save</button>
+</div>
