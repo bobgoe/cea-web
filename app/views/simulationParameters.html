@@ -2,26 +2,13 @@
   <h3>Simulation Parameters</h3>
   <p>This page contains the various other simulation parameters. We start by representing how many patients we simulate and in which state
   they start.</p>
-  <ul class="no-bullet">     
-    <table class="table table-striped table-condensed table-hover" style="font-size: 20px;">
-      <thead>
-        <tr><th> State  </th><th> Patients entering </th> </tr>
-      </thead>                       
-      <tbody>    
-        <tr ng-repeat="(key, state) in currentStep.problem.states" >  
-          <th> {{state.title}} </th>
-          <td> <input type="number" ng-model="state.startingPatients"> </td>
-        </tr>
-      </tbody>                             
-    </table>  
-  </ul>
-  <p>Next the Time horizon for which we simulate needs to be determined, this is reported in yearly cycles because we use a discrete method</p>
+  <p>The time horizon for which we simulate needs to be determined, this is reported in the maximum amount of days that we measure</p>
   <ul class="no-bullet">     
     <table class="table table-striped table-condensed table-hover" style="font-size: 20px;">                     
       <tbody>    
         <tr>
-          <th> Yearly cycles </th>
-          <td> <input type="number" ng-model="currentStep.problem.cycles"> </td>
+          <th> Time Horizon </th>
+          <td> <input type="number" ng-model="currentStep.problem.timeHorizon"> </td>
         </tr>
       </tbody>                             
     </table>  

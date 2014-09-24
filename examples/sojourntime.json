@@ -2,8 +2,10 @@
   "title": "COACH risk engine (Postmus et al, 2012)",
   "iterations": 10,
   "timeHorizon": 3650,
-  "wtp.max": 100000,
-  "wtp.min": 0,
+  "discountBenefits": 0.015,
+  "discountCosts": 0.04,
+  "minWillingnessToPay": 0,
+  "maxWillingnessToPay": 20000,
   "patient": {
     "startingState": 0,
     "covariates": [
@@ -105,7 +107,7 @@
       "title": "Discharged alive from hospital",
       "absorbingState": "FALSE",
       "sojournTimeRate": {
-    	  "distribution": "Weibull",
+    	"distribution": "Weibull",
         "values": {
           "shape": 0.816,
           "scale": 0.719,

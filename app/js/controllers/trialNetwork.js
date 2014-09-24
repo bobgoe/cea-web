@@ -5,7 +5,9 @@ define(['angular', 'lib/patavi', 'underscore'], function(angular, patavi, _) {
     var criteria;
     var scenario = angular.copy(currentScenario);
     
-    console.log(scenario);
+    $scope.covarState = scenario.state.problem.states[0].sojournTimeRate.values.treatments;
+    
+    console.log($scope.covarState);
     
     $scope.currentStep = taskDefinition.clean(currentScenario.state);
     

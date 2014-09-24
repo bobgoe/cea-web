@@ -240,14 +240,14 @@ ceac <- function(data, results) {
   
   # define misc values to get rank acceptabilities
   index <- 1
-  wtp.step <- data$wtp.max / 10
-  steps <- ( data$wtp.max - data$wtp.max ) / wtp.step
+  wtp.step <- data$maxWillingnessToPay / 10
+  steps <- ( data$maxWillingnessToPay - data$minWillingnessToPay ) / wtp.step
   lambda.vec <- rep(0,steps)
   cost.effect.accep <- c()
-  lambda <- data$wtp.min
+  lambda <- data$minWillingnessToPay
   
   # generate rank acceptabilities
-  while (lambda<=data$wtp.max) {
+  while (lambda<=data$maxWillingnessToPay) {
     cur.weight <- weightCon(lambda,scales)
     values <- smaa.values(SMAAInput, cur.weight)
     ranks <- smaa.ranks(values) 

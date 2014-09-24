@@ -1,3 +1,17 @@
 <div>
-gemtc-web
+  <table class="table table-striped table-condensed", width='400'>
+  <caption>Network meta-analysis outcomes per treatment</caption>
+    <tbody>
+     <tr ng-repeat="(key,treatment) in covarState">
+        <td>
+          <div class="pull-left">
+            <strong>{{key}}</strong><br />
+          </div>
+          <div class="pull-right">
+            <td> <input type="number" ng-model="treatment"> </td>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
  </div>
