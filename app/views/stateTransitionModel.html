@@ -25,19 +25,24 @@
           </div>
         </td>
       </tr>
+    </tbody>
+  </table>
+  <table ng-repeat="(key,state) in currentStep.problem.states | filter:{id:currentState}" class="table table-striped table-condensed", width='400'>
+  <caption>Sojourn Time</caption>
       <tr>
         <td>
           <div class="pull-left">
-            <strong>Sojourn time distribution</strong><br />
+            <strong>Distribution</strong><br />
           </div>
           <div class="pull-right">
             <td> <input type="text" ng-model="state.sojournTimeRate.distribution"> </td>
           </div>
         </td>
       </tr>
+      <tr>
         <td>
           <div class="pull-left">
-            <strong>Sojourn time shape</strong><br />
+            <strong>Shape</strong><br />
           </div>
           <div class="pull-right">
             <td> <input type="text" ng-model="state.sojournTimeRate.values.shape"> </td>
@@ -47,12 +52,43 @@
       <tr>
         <td>
           <div class="pull-left">
-            <strong>Sojourn time scale</strong><br />
+            <strong>Scale</strong><br />
           </div>
           <div class="pull-right">
             <td> <input type="text" ng-model="state.sojournTimeRate.values.scale"> </td>
           </div>
         </td>
+      </tr>
+      <tr ng-repeat="(key,covariate) in state.sojournTimeRate.values.covariates">
+        <td>
+          <div class="pull-left">
+            <strong>{{covariate.name}}</strong><br />
+            <small>Covariate</small>
+          </div>
+          <div class="pull-right">
+            <td> <input type="number" ng-model="covariate.value"> </td>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <table ng-repeat="(key,state) in currentStep.problem.states | filter:{id:currentState}" class="table table-striped table-condensed", width='800'>
+  <caption>Transition Rates</caption>
+      <tr>
+        <th>To State</th>
+        <th>Last State</th> 
+        <th>Distribution</th>
+        <th>Shape</th>
+        <th>Covariates</th>
+      </tr>
+      <tr ng-repeat="(key,departure) in state.departureRates" >
+          <div class="pull-left">
+            <td> <input type="text" ng-model="departure.to"> </td>
+            <td> <input type="text" ng-model="departure.lastState"> </td>
+            <td> <input type="text" ng-model="departure.distribution"> </td>
+            <td> <input type="text" ng-model="departure.values.alpha"> </td>
+            <td> <input type="text" ng-model="departure.values.covariates"> </td>
+          </div>
       </tr>
     </tbody>
   </table>

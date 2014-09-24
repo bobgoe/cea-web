@@ -352,5 +352,10 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
           $scope.currentState = d.id;
         };
            
+        $scope.departureSpan = function(departureRates) {
+          console.log(departureRates);
+          return 2;
+        };
+        
       };
 });
