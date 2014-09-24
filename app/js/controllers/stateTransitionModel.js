@@ -5,9 +5,7 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
   return function($rootScope, $scope, currentScenario, taskDefinition) {
     
     var scenario = angular.copy(currentScenario);
-    var states = _.pluck(scenario.state.problem.states, "title"); 
-
-    console.log(scenario);
+    var states = scenario.state.problem.states; 
     
         // set up SVG for D3
         var width  = 550,
@@ -34,10 +32,24 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
 
         // Define links between all disease states, we do this based on transition rates from the first alternative. 
         // So we assume that for all alternatives it is identical!
-        var transition = scenario.state.problem.alternatives[0].transition;
-        var rowExists;
+        console.log(states);
         
-        for (var from in transition) {
+        for (var state in states) {
+          // First set absorbing state
+          if (states[state].absorbingState == 'TRUE') {
+            nodes[state].reflexive = true;
+          }
+          console.log(states[state]);
+          // Set all possible routes for this state
+          for (var departure in states[state].departureRates) {
+            if (states[state].departureRates[departure] != null){
+              links.push({source: nodes[state], target: nodes[states[state].departureRates[departure].to], left: false, right: true });
+            }
+            console.log(states[state].departureRates[departure])
+          }
+        }
+        
+        /*for (var from in transition) {
           for (var to in transition[from]) {
             rowExists = false;
             if (transition[from][to] != null) {
@@ -60,7 +72,7 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
               }
             }
           }
-        }
+        }*/
         
         // init D3 force layout
         var force = d3.layout.force()
