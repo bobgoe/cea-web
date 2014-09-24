@@ -5,32 +5,57 @@
   <p>
   <div id="app-body">
     <div class="panel tab-content">
-      Placeholder Selected Node Info
-      <div class="instructions">
-        <ul class="no-bullet">
-          <li>Click in the open space to <strong>add a state</strong></li>
-          <li>Drag between states to <strong>add a transition</strong></li>
-          <li>Ctrl-drag a state to <strong>move</strong> graph layout</li>
-          <li>Click a state or a transition to <strong>select</strong> it</li>
-          <li>
-            When a state is selected:
-            <ul>
-              <li><strong>R</strong> toggles reflexivity</li>
-              <li><strong>Delete</strong> removes the state</li>
-            </ul>
-          </li>
-          <li>
-            When a transition is selected:
-            <ul>
-              <li><strong>L</strong>(eft), <strong>R</strong>(ight), <strong>B</strong>(oth) change direction</li>
-              <li><strong>Delete</strong> removes the transition</li>
-            </ul>
-          </li>
-        </ul>
-      </div>
+       <li>Click on a state to <strong>select</strong> it</li>
     </div>
     <div class="graph"></div>
   </div>
   </p>
+  <br>
+  Current State id:<input type="number" ng-model="currentState"/>
+  <table ng-repeat="(key,state) in currentStep.problem.states | filter:{id:currentState}" class="table table-striped table-condensed", width='400'>
+  <caption>{{state.title}}</caption>
+    <tbody>
+      <tr>
+        <td>
+          <div class="pull-left">
+            <strong>Absorbing</strong><br />
+          </div>
+          <div class="pull-right">
+            <td> <input type="text" ng-model="state.absorbingState"> </td>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class="pull-left">
+            <strong>Sojourn time distribution</strong><br />
+          </div>
+          <div class="pull-right">
+            <td> <input type="text" ng-model="state.sojournTimeRate.distribution"> </td>
+          </div>
+        </td>
+      </tr>
+        <td>
+          <div class="pull-left">
+            <strong>Sojourn time shape</strong><br />
+          </div>
+          <div class="pull-right">
+            <td> <input type="text" ng-model="state.sojournTimeRate.values.shape"> </td>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class="pull-left">
+            <strong>Sojourn time scale</strong><br />
+          </div>
+          <div class="pull-right">
+            <td> <input type="text" ng-model="state.sojournTimeRate.values.scale"> </td>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <br>
  <p><button class="small success" ng-click="save(saveState)">Save</button></p>
  </div>

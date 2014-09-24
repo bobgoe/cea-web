@@ -73,8 +73,8 @@ state <- function(data, stateId) {
 # return sojourn time when a Weibull distribution is used
 weibull <- function(covariates, state) {
   uniform <- runif(1)
-  rho <- state$sojournTimeRate$values$rho
-  lambda <- state$sojournTimeRate$values$lambda
+  rho <- state$sojournTimeRate$values$scale
+  lambda <- state$sojournTimeRate$values$shape
   lambda <- exp(lambda + covariates)
   val <- (-1/lambda * (log(1 - uniform)))^(1/rho)
 }
@@ -82,8 +82,8 @@ weibull <- function(covariates, state) {
 # return sojourn time when a Log Logistic distribution is used
 log.logistic <- function(state, covariates) {
   uniform <- runif(1)
-  beta <- state$sojournTimeRate$values$beta
-  lambda <- state$sojournTimeRate$values$lambda
+  beta <- state$sojournTimeRate$values$scale
+  lambda <- state$sojournTimeRate$values$shape
   lambda <- exp(lambda + covariates)
   alpha <- (1/lambda)^(1/beta) # Median of the log-logistic distribution
   val <- alpha*(uniform/(1-uniform)^(1/beta))
@@ -130,13 +130,25 @@ covariate.counts <- function(data) {
 # get all patient characteristics and treatments effects needed to assess sojourn time / departure rate
 covariates <- function(covariates, covariateCounts, treatments, alternative) {
   cov <- matrix(, nrow=length(covariates), ncol=1, byrow=T)
+
+  
+  cov1 <- matrix(, nrow=0, ncol=1, byrow=T)
+  
+  #new
+  for (i in 1:length(covariates)){
+    cov1 <- rbind(cov1, covariates[[i]]$value)
+    rownames(cov1)[i] <- covariates[[i]]$name
+  }
+  
+  print(cov1)
+  print(rownames(cov1)[5])
   
   #patient charcteristics
   for (i in 1:length(covariates)){
-    if (names(covariates[i]) %in% rownames(covariateCounts)) {
-      name <- names(covariates[i])
+    if (rownames(cov1)[i] %in% rownames(covariateCounts)) {
+      name <- rownames(cov1)[i]
       covcount <- (covariateCounts)[name,1]
-      cov[i,] <- (covariates[[i]] * covcount)
+      cov[i,] <- (cov1[[i]] * covcount)
     } 
   }
   

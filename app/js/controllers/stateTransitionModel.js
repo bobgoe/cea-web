@@ -6,7 +6,10 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
     
     var scenario = angular.copy(currentScenario);
     var states = scenario.state.problem.states; 
+    $scope.currentStep = taskDefinition.clean(currentScenario.state);
+    $scope.currentState = 0;
     
+    console.log(scenario)
         // set up SVG for D3
         var width  = 550,
             height = 440,
@@ -32,47 +35,19 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
 
         // Define links between all disease states, we do this based on transition rates from the first alternative. 
         // So we assume that for all alternatives it is identical!
-        console.log(states);
         
         for (var state in states) {
           // First set absorbing state
           if (states[state].absorbingState == 'TRUE') {
             nodes[state].reflexive = true;
           }
-          console.log(states[state]);
           // Set all possible routes for this state
           for (var departure in states[state].departureRates) {
             if (states[state].departureRates[departure] != null){
               links.push({source: nodes[state], target: nodes[states[state].departureRates[departure].to], left: false, right: true });
             }
-            console.log(states[state].departureRates[departure])
           }
         }
-        
-        /*for (var from in transition) {
-          for (var to in transition[from]) {
-            rowExists = false;
-            if (transition[from][to] != null) {
-              if (from == to && transition[from][to] != null) {
-                nodes[from].reflexive = true;
-              } else {
-                if ( links.length > 0 ) {
-                  for (var i in links) {
-                    if ((links[i].source.id == to) && (links[i].target.id == from)) {
-                      links[i].left = true;
-                      rowExists = true;
-                    } 
-                  }
-                  if (rowExists == false) {
-                    links.push({source: nodes[from], target: nodes[to], left: false, right: true });
-                  }
-                } else { // Case where no row exists
-                  links.push({source: nodes[from], target: nodes[to], left: false, right: true });
-                }
-              }
-            }
-          }
-        }*/
         
         // init D3 force layout
         var force = d3.layout.force()
@@ -218,7 +193,10 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
               mousedown_node = d;
               if(mousedown_node === selected_node) selected_node = null ;
               else selected_node = mousedown_node;
+
               selected_link = null;
+              
+              newStateSelected(d);
 
               // reposition drag line
               drag_line
@@ -295,51 +273,7 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
           force.start();
         }
 
-        function mousedown() {
-          // prevent I-bar on drag
-          //d3.event.preventDefault();
-          
-          // because :active only works in WebKit?
-          svg.classed('active', true);
-
-          if(d3.event.ctrlKey || mousedown_node || mousedown_link) return;
-
-          lastNodeId = 0;
-          for (var a in nodes){
-            if (nodes[a].id > lastNodeId) lastNodeId = nodes[a].id
-          }
-          ++lastNodeId 
-          
-          // insert new node at point
-          var point = d3.mouse(this),
-              node = {id: lastNodeId, reflexive: false};
-          node.x = point[0];
-          node.y = point[1];
-          nodes.push(node);
-          
-          // insert new state into the workspace
-          scenario.state.problem.states.push({
-            "id": lastNodeId,
-            "reflexive": "false",
-            "title": "",
-            "measuredEffect" : 0,
-            "startingPatients" : 0});
-          
-          // Update the transition and statecosts tables (add zero values to the transition matrixes)!
-          for (var a in scenario.state.problem.alternatives){
-            for (var i in scenario.state.problem.alternatives[a].transition){
-              scenario.state.problem.alternatives[a].transition[i].push(null);
-            }
-            var pushInto = []
-            for (var s in scenario.state.problem.states) {
-              pushInto.push(null);
-            }
-            scenario.state.problem.alternatives[a].transition.push(pushInto);
-            scenario.state.problem.alternatives[a].stateCosts.push(0);
-          }
-       
-          restart();
-        }
+        function mousedown() {}
 
         function mousemove() {
           if(!mousedown_node) return;
@@ -365,15 +299,6 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
           resetMouseVars();
         }
 
-        function spliceLinksForNode(node) {
-          var toSplice = links.filter(function(l) {
-            return (l.source === node || l.target === node);
-          });
-          toSplice.map(function(l) {
-            links.splice(links.indexOf(l), 1);
-          });
-        }
-
         // only respond once per keydown
         var lastKeyDown = -1;
 
@@ -390,83 +315,7 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
           }
 
           if(!selected_node && !selected_link) return;
-          switch(d3.event.keyCode) {
-            case 8: // backspace
-            case 46: // delete
-              if(selected_node) {
-                
-                // when we delete a node we delete the state and the transition inputs towards this state
-                scenario.state.problem.states.splice(selected_node.index,1);
-                
-                for (var a in scenario.state.problem.alternatives){
-                  scenario.state.problem.alternatives[a].transition.splice(selected_node.index,1);
-                  for (var b in scenario.state.problem.alternatives[a].transition){
-                    scenario.state.problem.alternatives[a].transition[b].splice(selected_node.index,1);
-                  }
-                  scenario.state.problem.alternatives[a].stateCosts.splice(selected_node.index,1);
-                }
-                
-                nodes.splice(nodes.indexOf(selected_node), 1);
-                spliceLinksForNode(selected_node);
-              } else if(selected_link) {
-                
-                // when we delete a link we also delete the transition inputs it represents, to do this we insert a null value
-                if (selected_link.left == true) alterLeftArrowIntoTransition(selected_link, null);
-                if (selected_link.right == true) alterRightArrowIntoTransition(selected_link, null);
-
-                links.splice(links.indexOf(selected_link), 1);
-              }
-              selected_link = null;
-              selected_node = null;
-              restart();
-              break;
-            case 66: // B
-              if(selected_link) {
-                // set link direction to both left and right
-                alterLeftArrowIntoTransition(selected_link, 0);
-                alterRightArrowIntoTransition(selected_link, 0);
-                selected_link.left = true;
-                selected_link.right = true;
-              }
-              restart();
-              break;
-            case 76: // L
-              if(selected_link) {
-                // set link direction to left only
-                alterLeftArrowIntoTransition(selected_link, 0);
-                alterRightArrowIntoTransition(selected_link, null);
-                selected_link.left = true;
-                selected_link.right = false;
-              }
-              restart();
-              break;
-            case 82: // R
-              if(selected_node) {
-                // toggle node reflexivity
-                
-                for (var a in scenario.state.problem.alternatives){
-                  for (var b in scenario.state.problem.alternatives[a].transition){
-                    if ( b == selected_node.index){
-                      if (scenario.state.problem.alternatives[a].transition[b][b] == null) {
-                        scenario.state.problem.alternatives[a].transition[b][b] = 0;
-                      } else {
-                        scenario.state.problem.alternatives[a].transition[b][b] = null;
-                      }
-                    }
-                  }
-                }
-                
-                selected_node.reflexive = !selected_node.reflexive;
-              } else if(selected_link) {
-                // set link direction to right only
-                alterLeftArrowIntoTransition(selected_link, null);
-                alterRightArrowIntoTransition(selected_link, 0);
-                selected_link.left = false;
-                selected_link.right = true;
-              }
-              restart();
-              break;
-          }
+          
         }
 
         function keyup() {
@@ -498,24 +347,10 @@ define(['angular', 'lib/patavi', 'underscore', 'NProgress'], function(angular, p
         
         $scope.saveState = taskDefinition.clean(scenario.state);
         
-        var alterRightArrowIntoTransition = function(link, value) {
-          for (var a in scenario.state.problem.alternatives){
-            for (var b in scenario.state.problem.alternatives[a].transition){
-              if ( b == link.source.index){
-                scenario.state.problem.alternatives[a].transition[b][link.target.index] = value;
-              }
-            }
-          }
+        function newStateSelected (d) {
+          console.log(d);
+          $scope.currentState = d.id;
         };
-        
-        var alterLeftArrowIntoTransition = function(link, value) {
-          for (var a in scenario.state.problem.alternatives){
-            for (var b in scenario.state.problem.alternatives[a].transition){
-              if ( b == link.target.index){
-                scenario.state.problem.alternatives[a].transition[b][link.source.index] = value;
-              }
-            }
-          }
-        };      
+           
       };
 });
